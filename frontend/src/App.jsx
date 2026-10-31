@@ -1,669 +1,1028 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import GoogleTacticalMap from './GoogleTacticalMap';
 import { 
-  MapContainer, 
-  TileLayer, 
-  Marker, 
-  Popup, 
-  Polyline, 
-  Polygon, 
-  Circle,
-  useMap 
-} from 'react-leaflet';
-import L from 'leaflet';
-import { 
-  AlertTriangle, 
   ShieldAlert, 
-  Truck, 
-  Ship, 
+  AlertTriangle, 
   Activity, 
-  Radio, 
-  CheckCircle2, 
   Clock, 
   Compass, 
-  Cpu, 
   Layers, 
-  RefreshCw, 
-  RotateCcw, 
-  Flame, 
-  Users, 
-  Sliders, 
-  ChevronRight, 
-  Plus, 
-  Minus, 
-  Sparkles, 
-  Crosshair, 
-  Check, 
   Zap, 
-  Maximize2,
-  Navigation,
-  FileText,
-  Boxes
+  RotateCcw, 
+  CheckCircle2, 
+  ChevronRight, 
+  Users, 
+  Navigation, 
+  Radio, 
+  Sparkles, 
+  Plus, 
+  Check, 
+  ShieldCheck, 
+  MapPin, 
+  Truck, 
+  Ship, 
+  HeartPulse, 
+  Building2, 
+  Flame, 
+  ArrowRight, 
+  FileText, 
+  Ban, 
+  AlertOctagon, 
+  HelpCircle, 
+  Eye, 
+  RefreshCw, 
+  X,
+  Cpu,
+  Boxes,
+  Sliders,
+  CheckCircle,
+  PhoneCall,
+  Info
 } from 'lucide-react';
 
+const googleMapsApiKey = (import.meta.env.VITE_MAP_API_KEY || '').trim();
+
 // -----------------------------------------------------------------------------
-// LEAFLET CUSTOM TACTICAL ICONS (Using L.divIcon for crisp, infallible SVGs)
+// 1. MATHEMATICAL FORMULAS & ENGINES (PILLARS 1, 2, 3)
 // -----------------------------------------------------------------------------
 
-const createIncidentIcon = (category, isSelected) => {
-  const color = category === 'CRITICAL' ? '#ef4444' : category === 'HIGH' ? '#f59e0b' : '#06b6d4';
-  const pulseClass = category === 'CRITICAL' ? 'animate-ping' : '';
-  const selectedBorder = isSelected ? 'border-2 border-white scale-125' : '';
+/**
+ * PILLAR 1: AI Evidence Verification & Confidence Scoring
+ * Formula:
+ * Confidence = BaseSourceTrust * FreshnessDecay + CorroborationBonus - ConflictPenalty
+ */
+export function calculateEvidenceConfidence(reports = [], hasConflict = false) {
+  if (!reports || reports.length === 0) return 30;
 
-  const html = `
-    <div class="relative flex items-center justify-center w-8 h-8 ${selectedBorder} transition-all">
-      <span class="absolute inline-flex h-full w-full rounded-full opacity-75 ${pulseClass}" style="background-color: ${color};"></span>
-      <span class="relative inline-flex rounded-full h-6 w-6 items-center justify-center text-white text-xs font-bold shadow-lg" style="background-color: ${color};">
-        ${category === 'CRITICAL' ? '!' : category === 'HIGH' ? '▲' : '●'}
-      </span>
-    </div>
-  `;
-  return L.divIcon({ html, className: 'custom-incident-pin', iconSize: [32, 32], iconAnchor: [16, 16] });
-};
+  const trustWeights = {
+    'GOVT_FEED': 0.96,
+    'FIELD_OFFICER': 0.90,
+    'IOT_SENSOR': 0.86,
+    'CITIZEN_CROWDSOURCE': 0.42
+  };
 
-const createConvoyIcon = (convoy) => {
-  const isSeveredTarget = convoy.rerouted;
-  const bgColor = isSeveredTarget ? '#f59e0b' : convoy.type === 'BOAT' ? '#0284c7' : convoy.type === 'AMBULANCE' ? '#ef4444' : '#10b981';
-  const iconEmoji = convoy.type === 'BOAT' ? '🚤' : convoy.type === 'AMBULANCE' ? '🚑' : convoy.type === 'HEAVY_CONVOY' ? '🚛' : '🚚';
+  // Find max base trust from reporting sources
+  let maxBaseTrust = 0.35;
+  reports.forEach(r => {
+    const w = trustWeights[r.source] || 0.40;
+    if (w > maxBaseTrust) maxBaseTrust = w;
+  });
 
-  const html = `
-    <div class="relative flex items-center justify-center w-10 h-10 transition-transform">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-xl border border-slate-700 bg-slate-900/90 text-white" style="box-shadow: 0 0 10px ${bgColor};">
-        ${iconEmoji}
-      </div>
-      <div class="absolute -bottom-3 bg-slate-950/90 border border-slate-700 text-[9px] px-1 rounded text-cyan-400 font-mono whitespace-nowrap">
-        ${convoy.callsign.split(' - ')[0]}
-      </div>
-    </div>
-  `;
-  return L.divIcon({ html, className: 'custom-convoy-pin', iconSize: [40, 40], iconAnchor: [20, 20] });
-};
+  // Freshness decay based on newest report (decay 2% per 10 mins, min 0.85)
+  const newestAgeMinutes = reports.reduce((min, r) => Math.min(min, r.ageMinutes || 5), 999);
+  const freshnessDecay = Math.max(0.85, 1.0 - (newestAgeMinutes / 10) * 0.02);
 
-const createGaugeIcon = (gauge) => {
-  const isCritical = gauge.level >= gauge.critical_threshold;
-  const isWarning = gauge.level >= gauge.warning_threshold;
-  const badgeColor = isCritical ? 'bg-red-500' : isWarning ? 'bg-amber-500' : 'bg-cyan-500';
+  // Corroboration bonus: +8% per additional corroborated report, up to +24%
+  const corroborationBonus = Math.min(0.24, Math.max(0, (reports.length - 1) * 0.08));
 
-  const html = `
-    <div class="flex flex-col items-center">
-      <div class="${badgeColor} text-slate-950 text-[10px] font-black px-1.5 py-0.5 rounded shadow border border-white/20 whitespace-nowrap">
-        ${gauge.id}: ${gauge.level}m
-      </div>
-      <div class="w-2 h-2 rounded-full ${badgeColor} mt-0.5 animate-pulse"></div>
-    </div>
-  `;
-  return L.divIcon({ html, className: 'custom-gauge-pin', iconSize: [60, 26], iconAnchor: [30, 26] });
-};
+  // Conflict penalty: -25% penalty if reports contradict
+  const conflictPenalty = hasConflict ? 0.25 : 0.0;
 
-const createNodeIcon = (node) => {
-  const isBridge = node.type === 'BRIDGE';
-  const isShelter = node.type === 'SHELTER';
-  const isHospital = node.type === 'HOSPITAL';
-  const color = isBridge ? '#f59e0b' : isShelter ? '#10b981' : isHospital ? '#ef4444' : '#64748b';
-  const label = isShelter ? 'SHELTER' : isHospital ? 'MED' : isBridge ? 'BRIDGE' : 'NODE';
+  const rawScore = (maxBaseTrust * freshnessDecay) + corroborationBonus - conflictPenalty;
+  return Math.min(99, Math.max(15, Math.round(rawScore * 100)));
+}
 
-  const html = `
-    <div class="flex flex-col items-center opacity-85 hover:opacity-100 transition-opacity">
-      <div class="w-2.5 h-2.5 rounded-full border border-white" style="background-color: ${color};"></div>
-      <div class="text-[8px] font-mono text-slate-400 bg-slate-950/80 px-1 rounded mt-0.5">${label}</div>
-    </div>
-  `;
-  return L.divIcon({ html, className: 'custom-node-pin', iconSize: [30, 20], iconAnchor: [15, 5] });
-};
+/**
+ * PILLAR 2: Explainable Prioritization Engine
+ * Formula:
+ * Dynamic Priority = (ThreatToLife * 0.30) + (Population * 0.25) + (Vulnerability * 0.20) + (AccessIngress * 0.15) + (Confidence * 0.10)
+ */
+export function calculateExplainablePriority(incident) {
+  const threatScore = incident.isLifeThreat ? 100 : (incident.inundationDepth_m >= 2.0 ? 85 : 45);
+  const popScore = Math.min(100, Math.round((incident.populationTrapped / 50) * 100));
+  
+  let vulnScore = 30;
+  if (incident.vulnerabilityType === 'ICU_PATIENTS') vulnScore = 100;
+  else if (incident.vulnerabilityType === 'ELDERLY_HOME') vulnScore = 85;
+  else if (incident.vulnerabilityType === 'INFANTS_CHILDREN') vulnScore = 90;
+  else if (incident.vulnerabilityType === 'SLUM_POCKET') vulnScore = 70;
 
-// Map FlyTo Helper Component
-function MapViewController({ center, zoom }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.flyTo(center, zoom || 14, { duration: 1.2 });
+  const accessScore = incident.accessBlockageScore || 75; // Higher = more isolated/blocked
+  const confidenceScore = incident.evidenceConfidence || 50;
+
+  const weights = {
+    threat: 0.30,
+    population: 0.25,
+    vulnerability: 0.20,
+    access: 0.15,
+    confidence: 0.10
+  };
+
+  const finalScore = Math.round(
+    (threatScore * weights.threat) +
+    (popScore * weights.population) +
+    (vulnScore * weights.vulnerability) +
+    (accessScore * weights.access) +
+    (confidenceScore * weights.confidence)
+  );
+
+  return {
+    finalScore: Math.min(100, Math.max(10, finalScore)),
+    subScores: {
+      threat: threatScore,
+      population: popScore,
+      vulnerability: vulnScore,
+      access: accessScore,
+      confidence: confidenceScore
+    },
+    weights
+  };
+}
+
+/**
+ * PILLAR 3: Resource Allocation Solver (Bipartite / Knapsack Constraint Matching)
+ * Matches incidents requiring specific equipment against available registry
+ */
+export function solveResourceAllocation(incidentsList, teamsList) {
+  // Sort incidents by Priority Score descending
+  const sortedIncidents = [...incidentsList].sort((a, b) => b.priorityScore - a.priorityScore);
+  
+  // Track team availability
+  const availableTeams = teamsList.map(t => ({ ...t, isAssigned: false, assignedIncidentId: null }));
+  const assignments = [];
+  const bottlenecks = [];
+  const unserved = [];
+
+  for (const inc of sortedIncidents) {
+    const requiredCap = inc.requiredCapability; // 'ZODIAC_BOAT' | 'PARAMEDIC_AMBULANCE' | 'HEAVY_PUMP'
+    
+    // Find matching free team
+    const match = availableTeams.find(t => !t.isAssigned && t.capabilities.includes(requiredCap));
+    
+    if (match) {
+      match.isAssigned = true;
+      match.assignedIncidentId = inc.id;
+      assignments.push({
+        incidentId: inc.id,
+        incidentTitle: inc.title,
+        priority: inc.priorityScore,
+        teamId: match.id,
+        teamCallsign: match.callsign,
+        capability: requiredCap,
+        etaMinutes: match.baseEtaMinutes || 14
+      });
+    } else {
+      // Constraint Bottleneck detected
+      unserved.push({
+        incidentId: inc.id,
+        incidentTitle: inc.title,
+        priority: inc.priorityScore,
+        neededCapability: requiredCap,
+        reason: `0 ${requiredCap.replace('_', ' ')} units remaining in reserve.`
+      });
+      if (!bottlenecks.includes(requiredCap)) {
+        bottlenecks.push(requiredCap);
+      }
     }
-  }, [center, zoom, map]);
-  return null;
+  }
+
+  return { assignments, unserved, bottlenecks, updatedTeams: availableTeams };
 }
 
 // -----------------------------------------------------------------------------
-// MAIN COMPONENT
+// 2. MOCK DATASET & STRATEGIC TOPOLOGY (CHENNAI METRO RIVER DELTA)
 // -----------------------------------------------------------------------------
 
-export default function App() {
-  // WebSocket State
-  const [wsConnected, setWsConnected] = useState(false);
-  const [packetPulse, setPacketPulse] = useState(false);
-  const wsRef = useRef(null);
+const INITIAL_INCIDENTS = [
+  {
+    id: 'INC-101',
+    title: 'City Hospital Trauma & ICU Submersion',
+    sector: 'Manapakkam Adyar Flood Corridor',
+    pos: [13.0180, 80.1870],
+    isLifeThreat: true,
+    inundationDepth_m: 2.4,
+    populationTrapped: 45,
+    vulnerabilityType: 'ICU_PATIENTS',
+    vulnerabilityLabel: '45 ICU & Dialysis Patients',
+    accessBlockageScore: 92,
+    requiredCapability: 'ZODIAC_BOAT',
+    assignedTeamId: 'TEAM-01',
+    hasConflict: false,
+    reports: [
+      { id: 'R101-1', source: 'IOT_SENSOR', text: 'Telemetry RG-02 breached 2.3m critical flood crest at hospital perimeter.', ageMinutes: 4 },
+      { id: 'R101-2', source: 'FIELD_OFFICER', text: 'Inspector V. Raman (SDRF): Ground floor flooded, emergency generator running out of diesel.', ageMinutes: 8 }
+    ],
+    recommendedAction: 'Immediate amphibious extraction via Zodiac Boat with portable ventilator units.'
+  },
+  {
+    id: 'INC-102',
+    title: 'North Colony Senior Care Facility Isolation',
+    sector: 'Saidapet Low-Lying Sector',
+    pos: [13.0320, 80.2180],
+    isLifeThreat: false,
+    inundationDepth_m: 1.6,
+    populationTrapped: 18,
+    vulnerabilityType: 'ELDERLY_HOME',
+    vulnerabilityLabel: '18 Bedridden Seniors',
+    accessBlockageScore: 80,
+    requiredCapability: 'PARAMEDIC_AMBULANCE',
+    assignedTeamId: 'TEAM-02',
+    hasConflict: false,
+    reports: [
+      { id: 'R102-1', source: 'CITIZEN_CROWDSOURCE', text: 'Caretaker SOS: Ground level 4ft water, medical oxygen running low.', ageMinutes: 6 },
+      { id: 'R102-2', source: 'CITIZEN_CROWDSOURCE', text: 'Neighbor corroboration: Senior home cut off, power failure since 11:00 AM.', ageMinutes: 12 },
+      { id: 'R102-3', source: 'FIELD_OFFICER', text: 'Civil Defense Scout: Structural access viable only via high-clearance 4WD.', ageMinutes: 15 }
+    ],
+    recommendedAction: 'Dispatch high-clearance 4WD Paramedic unit for urgent pharmaceutical resupply and triage.'
+  },
+  {
+    id: 'INC-103',
+    title: 'Submerged Slum Pocket & School Rooftop Refuge',
+    sector: 'Kotturpuram Adyar Riverbank',
+    pos: [13.0140, 80.2350],
+    isLifeThreat: true,
+    inundationDepth_m: 2.1,
+    populationTrapped: 28,
+    vulnerabilityType: 'INFANTS_CHILDREN',
+    vulnerabilityLabel: '28 Civilians (12 Children & Infants)',
+    accessBlockageScore: 88,
+    requiredCapability: 'ZODIAC_BOAT',
+    assignedTeamId: null, // Unserved due to boat scarcity
+    hasConflict: false,
+    reports: [
+      { id: 'R103-1', source: 'CITIZEN_CROWDSOURCE', text: 'Distress call from rooftop: Adyar river overflow reached ceiling level, children awaiting rescue.', ageMinutes: 5 }
+    ],
+    recommendedAction: 'Allocate next available inflatable boat or request Coast Guard airborne drop.'
+  },
+  {
+    id: 'INC-104',
+    title: 'Market Road Tree Fall & Electrical Line Hazard',
+    sector: 'Pondy Bazaar Transit Arterial',
+    pos: [13.0420, 80.2380],
+    isLifeThreat: false,
+    inundationDepth_m: 0.8,
+    populationTrapped: 6,
+    vulnerabilityType: 'SLUM_POCKET',
+    vulnerabilityLabel: '6 Shopkeepers Trapped',
+    accessBlockageScore: 45,
+    requiredCapability: 'HEAVY_PUMP',
+    assignedTeamId: 'TEAM-03',
+    hasConflict: true, // Conflicting reports!
+    reports: [
+      { id: 'R104-1', source: 'CITIZEN_CROWDSOURCE', text: 'Shopkeeper ping: Road is clear, only ankle-deep rain.', ageMinutes: 3 },
+      { id: 'R104-2', source: 'FIELD_OFFICER', text: 'Traffic Officer Report: 1.2m waterlogging + live fallen electrical conduit. Road impassable.', ageMinutes: 5 }
+    ],
+    recommendedAction: 'Dispatch heavy de-watering pump and isolate municipal power grid before civilian clearing.'
+  }
+];
 
-  // Command Center Core State
-  const [timelineTicker, setTimelineTicker] = useState('T+00:00:00 into Flood Warning Phase');
-  const [operatorLoadPct, setOperatorLoadPct] = useState(42);
-  const [roadSevered, setRoadSevered] = useState(false);
-  const [surgeActive, setSurgeActive] = useState(false);
-  const [warningBanner, setWarningBanner] = useState(null);
+const INITIAL_TEAMS = [
+  {
+    id: 'TEAM-01',
+    callsign: 'NDRF Unit 1 (Alpha Bn)',
+    type: 'AMPHIBIOUS_RESCUE',
+    capabilities: ['ZODIAC_BOAT', 'WINCH_CRANE'],
+    personnel: 6,
+    gear: 'Rigid Inflatable Zodiac Boat, 40HP Engine, 12 Immersion Suits',
+    pos: [13.0240, 80.2280],
+    batteryPct: 94,
+    status: 'IN_TRANSIT',
+    assignedIncidentId: 'INC-101',
+    routeId: 'ROUTE-01',
+    baseEtaMinutes: 14
+  },
+  {
+    id: 'TEAM-02',
+    callsign: 'SDRF Unit 2 (Bravo Medics)',
+    type: 'HIGH_CLEARANCE_PARAMEDIC',
+    capabilities: ['PARAMEDIC_AMBULANCE', 'FIRST_AID_TRIAGE'],
+    personnel: 4,
+    gear: '4WD High-Water Ambulance, Defibrillators, Mobile Oxygen',
+    pos: [13.0450, 80.2300],
+    batteryPct: 88,
+    status: 'IN_TRANSIT',
+    assignedIncidentId: 'INC-102',
+    routeId: 'ROUTE-02',
+    baseEtaMinutes: 11
+  },
+  {
+    id: 'TEAM-03',
+    callsign: 'Civil Defense 3 (Charlie Pump Squad)',
+    type: 'DE_WATERING_ENGINEERING',
+    capabilities: ['HEAVY_PUMP', 'TRANSPORT_TRUCK'],
+    personnel: 5,
+    gear: 'High-Volume Dewatering Pump (5000L/min), Hydraulic Chainsaws',
+    pos: [13.0520, 80.2500],
+    batteryPct: 91,
+    status: 'ON_SITE',
+    assignedIncidentId: 'INC-104',
+    routeId: 'ROUTE-03',
+    baseEtaMinutes: 8
+  }
+];
 
-  // Tactical Data Collections
-  const [incidents, setIncidents] = useState([]);
-  const [convoys, setConvoys] = useState([]);
-  const [gauges, setGauges] = useState([]);
-  const [nodes, setNodes] = useState({});
-  const [networkGeoJson, setNetworkGeoJson] = useState(null);
-  const [inundationGeoJson, setInundationGeoJson] = useState(null);
-  const [stats, setStats] = useState({ total_incidents: 3, critical_count: 1, high_count: 1, convoys_en_route: 4 });
+const INITIAL_SHELTERS = [
+  {
+    id: 'SHELTER-01',
+    name: 'Highland Polytech Engineering Shelter',
+    pos: [13.0290, 80.2080],
+    capacity: 400,
+    occupancy: 350, // 87.5% - Near Saturation!
+    amenities: 'Medical Station, Emergency Kitchen, Backup Generator',
+    divertTargetId: 'SHELTER-02'
+  },
+  {
+    id: 'SHELTER-02',
+    name: 'City Indoor Arena Evacuation Haven',
+    pos: [13.0650, 80.2600],
+    capacity: 600,
+    occupancy: 120, // 20% - Safe Reserve Haven
+    amenities: 'Helipad Access, 50-bed Field Hospital, Pure Water Plant',
+    divertTargetId: null
+  }
+];
 
-  // UI State Controls
-  const [activePersona, setActivePersona] = useState('Commander'); // 'Commander' | 'Field Agent' | 'Developer'
-  const [activeFilter, setActiveFilter] = useState('All'); // 'All' | 'Sensor Verified' | 'Citizen SOS' | 'Evacuation Active'
-  const [selectedIncidentId, setSelectedIncidentId] = useState('#INC-4091');
-  const [rightPanelTab, setRightPanelTab] = useState('TRIAGE'); // 'TRIAGE' | 'OPERATOR DISPATCH' | 'EXPLAINABILITY' | 'RESOURCES'
-  const [mapCenter, setMapCenter] = useState([13.0230, 80.2260]);
+const INITIAL_DEPOTS = [
+  {
+    id: 'DEPOT-01',
+    name: 'Ripon Command Central Supply Depot',
+    pos: [13.0827, 80.2755],
+    stock: '2 Zodiac Boats, 150 Lifejackets, 400 MRE Rations, 8 Mobile Drones'
+  },
+  {
+    id: 'DEPOT-02',
+    name: 'Guindy Industrial Staging Yard',
+    pos: [13.0067, 80.2025],
+    stock: '3 High-Volume Pumps, 2 Paramedic Trucks, 50,000 Sandbags'
+  }
+];
+
+// Strategic Corridors
+const STRATEGIC_ROADS = [
+  {
+    id: 'ROAD-CENTRAL',
+    name: 'Central River Viaduct (Saidapet Maraimalai Adigal Bridge)',
+    status: 'NORMAL', // Will become 'SEVERED' during Jury Challenge
+    waypoints: [
+      [13.0240, 80.2280], // Team 1 Start
+      [13.0210, 80.2240],
+      [13.0185, 80.2220], // Bridge Cutoff Point
+      [13.0150, 80.2050],
+      [13.0180, 80.1870]  // Hospital Destination
+    ]
+  },
+  {
+    id: 'ROAD-WEST-BYPASS',
+    name: 'West Highland Elevated Bypass (Kathipara Corridor)',
+    status: 'NORMAL',
+    waypoints: [
+      [13.0240, 80.2280],
+      [13.0300, 80.2150],
+      [13.0200, 80.2050],
+      [13.0067, 80.2025], // Kathipara Cloverleaf
+      [13.0120, 80.1920],
+      [13.0180, 80.1870]  // Hospital Destination
+    ]
+  },
+  {
+    id: 'ROAD-EAST-RING',
+    name: 'East Ring Transit Artery',
+    status: 'NORMAL',
+    waypoints: [
+      [13.0450, 80.2300],
+      [13.0380, 80.2250],
+      [13.0320, 80.2180]
+    ]
+  }
+];
+
+// Flood Polygons
+const INUNDATION_POLYGONS = [
+  {
+    id: 'FLOOD-01',
+    name: 'Adyar River Main Surge Corridor (Critical Hazard)',
+    depth: '2.4m',
+    color: '#ef4444',
+    fillOpacity: 0.35,
+    coords: [
+      [13.0100, 80.1750],
+      [13.0220, 80.1850],
+      [13.0240, 80.2150],
+      [13.0220, 80.2320],
+      [13.0120, 80.2450],
+      [13.0040, 80.2380],
+      [13.0080, 80.2100],
+      [13.0050, 80.1800]
+    ]
+  },
+  {
+    id: 'FLOOD-02',
+    name: 'Saidapet Urban Basin Waterlogging (High Hazard)',
+    depth: '1.6m',
+    color: '#f59e0b',
+    fillOpacity: 0.28,
+    coords: [
+      [13.0250, 80.2100],
+      [13.0380, 80.2180],
+      [13.0320, 80.2300],
+      [13.0220, 80.2250]
+    ]
+  }
+];
+
+// -----------------------------------------------------------------------------
+// 3. LEAFLET CUSTOM COMMAND PIN BUILDERS
+// -----------------------------------------------------------------------------
+
+const createIncidentPin = (priority, isSelected) => {
+  const isCritical = priority >= 75;
+  const isHigh = priority >= 50;
+  const color = isCritical ? '#ef4444' : isHigh ? '#f59e0b' : '#06b6d4';
+  const pulse = isCritical ? 'animate-ping' : '';
+  const selectedRing = isSelected ? 'ring-4 ring-white scale-125' : '';
+
+  const html = `
+    <div class="relative flex items-center justify-center w-8 h-8 ${selectedRing} transition-all">
+      <span class="absolute inline-flex h-full w-full rounded-full opacity-75 ${pulse}" style="background-color: ${color};"></span>
+      <span class="relative inline-flex rounded-full h-6 w-6 items-center justify-center text-slate-950 text-xs font-black shadow-lg" style="background-color: ${color};">
+        ${isCritical ? '!' : isHigh ? '▲' : '●'}
+      </span>
+      <div class="absolute -bottom-3 bg-slate-950/95 border border-slate-700 text-[8px] px-1 rounded text-cyan-400 font-mono whitespace-nowrap shadow">
+        ${priority}
+      </div>
+    </div>
+  `;
+  return L.divIcon({ html, className: 'custom-inc-pin', iconSize: [32, 32], iconAnchor: [16, 16] });
+};
+
+const createTeamPin = (team) => {
+  const isImpacted = team.isImpacted;
+  const isBoat = team.capabilities.includes('ZODIAC_BOAT');
+  const isMedic = team.capabilities.includes('PARAMEDIC_AMBULANCE');
+  const emoji = isBoat ? '🚤' : isMedic ? '🚑' : '🚚';
+  const borderCol = isImpacted ? '#ef4444' : '#10b981';
+
+  const html = `
+    <div class="relative flex items-center justify-center w-9 h-9">
+      ${isImpacted ? '<span class="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-ping"></span>' : ''}
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm shadow-xl border-2 bg-slate-950 text-white" style="border-color: ${borderCol};">
+        ${emoji}
+      </div>
+      <div class="absolute -bottom-3 bg-slate-950/90 border border-slate-700 text-[8px] px-1 rounded ${isImpacted ? 'text-red-400 font-bold animate-pulse' : 'text-emerald-400'} font-mono whitespace-nowrap">
+        ${team.callsign.split(' ')[0]}
+      </div>
+    </div>
+  `;
+  return L.divIcon({ html, className: 'custom-team-pin', iconSize: [36, 36], iconAnchor: [18, 18] });
+};
+
+const createShelterPin = (shelter) => {
+  const satPct = Math.round((shelter.occupancy / shelter.capacity) * 100);
+  const isDiverted = satPct >= 90;
+  const bgCol = isDiverted ? 'bg-red-500' : satPct >= 80 ? 'bg-amber-500' : 'bg-emerald-500';
+
+  const html = `
+    <div class="flex flex-col items-center">
+      <div class="flex items-center space-x-0.5 ${bgCol} text-slate-950 text-[9px] font-black px-1.5 py-0.5 rounded shadow border border-white/20 whitespace-nowrap">
+        <span>🏠</span>
+        <span>${satPct}%</span>
+      </div>
+      <div class="w-1.5 h-1.5 rounded-full ${bgCol} mt-0.5 ${isDiverted ? 'animate-ping' : ''}"></div>
+    </div>
+  `;
+  return L.divIcon({ html, className: 'custom-shelter-pin', iconSize: [44, 24], iconAnchor: [22, 24] });
+};
+
+// -----------------------------------------------------------------------------
+// 4. MAIN AEGISFLOOD SPA COMPONENT
+// -----------------------------------------------------------------------------
+
+export default function AegisFloodApp() {
+  // Live Emergency Clock & Dynamic Sensors
+  const [zuluTime, setZuluTime] = useState('');
+  const [istTime, setIstTime] = useState('');
+  const [waterLevel_m, setWaterLevel_m] = useState(4.82);
+  const [rainfallInflow, setRainfallInflow] = useState(52);
+  const [evidenceStreamRate, setEvidenceStreamRate] = useState(14);
+  const [planId, setPlanId] = useState('PLAN-DELTA-01');
+
+  // Core Data Collections
+  const [incidents, setIncidents] = useState(() => {
+    return INITIAL_INCIDENTS.map(inc => {
+      const confidence = calculateEvidenceConfidence(inc.reports, inc.hasConflict);
+      const prio = calculateExplainablePriority({ ...inc, evidenceConfidence: confidence });
+      return {
+        ...inc,
+        evidenceConfidence: confidence,
+        priorityScore: prio.finalScore,
+        priorityBreakdown: prio
+      };
+    });
+  });
+
+  const [teams, setTeams] = useState(INITIAL_TEAMS);
+  const [shelters, setShelters] = useState(INITIAL_SHELTERS);
+  const [depots] = useState(INITIAL_DEPOTS);
+  const [roadSegments, setRoadSegments] = useState(STRATEGIC_ROADS);
+
+  // UI Selection & Navigation State
+  const [activeQueueFilter, setActiveQueueFilter] = useState('ALL'); // 'ALL' | 'VERIFY' | 'ASSIGNED' | 'UNSERVED'
+  const [selectedEntity, setSelectedEntity] = useState(null); // { type, data }
+  const [rightPanelTab, setRightPanelTab] = useState('ALLOCATOR'); // 'ALLOCATOR' | 'SHELTERS' | 'REPLANNING'
+  const [expandedWhyIncidentId, setExpandedWhyIncidentId] = useState('INC-101');
+  const [mapCenter, setMapCenter] = useState([13.0280, 80.2200]);
   const [mapZoom, setMapZoom] = useState(13);
 
-  // Map API Key & Base Layer Configuration
-  const DEFAULT_MAP_KEY = "1b710fb3b44b4b09bf8a5b6f82805341";
-  const [mapApiKey, setMapApiKey] = useState(() => {
-    return localStorage.getItem('ecc_map_api_key') || (import.meta.env.VITE_MAP_API_KEY || DEFAULT_MAP_KEY);
-  });
-  const [mapBaseLayer, setMapBaseLayer] = useState(() => {
-    return localStorage.getItem('ecc_map_baselayer') || 'geoapify_dark';
-  });
-  const [tempApiKey, setTempApiKey] = useState(mapApiKey);
-  const [showKeyInput, setShowKeyInput] = useState(false);
-
-  // Map Layers Toggle HUD
+  // Map Layer Toggles HUD
   const [layersHUD, setLayersHUD] = useState({
-    incidents: true,
-    responders: true,
-    clusters: true,
     inundation: true,
-    blockedRoads: true,
-    activeRoutes: true
+    transitCorridors: true,
+    incidents: true,
+    teams: true,
+    shelters: true,
+    depots: true
   });
 
-  // Human-in-the-Loop Triage Allocations
-  const [allocations, setAllocations] = useState({ boats: 2, ambulances: 1, rations: 50 });
-  const [verificationChecklist, setVerificationChecklist] = useState({
-    cluster_verified: true,
-    gauge_correlated: true,
-    structural_check: false,
-    hazmat_cleared: false
+  // Optimizer Solver State
+  const [allocationResult, setAllocationResult] = useState(() => {
+    return solveResourceAllocation(INITIAL_INCIDENTS, INITIAL_TEAMS);
   });
 
-  // Flash packet pulse badge
-  const triggerPacketPulse = () => {
-    setPacketPulse(true);
-    setTimeout(() => setPacketPulse(false), 300);
-  };
+  // JURY CHALLENGE & AUTONOMOUS REPLANNING ENGINE (PILLAR 5)
+  const [isSeveredTriggered, setIsSeveredTriggered] = useState(false);
+  const [showReplanningDiffModal, setShowReplanningDiffModal] = useState(false);
+  const [isPlanApproved, setIsPlanApproved] = useState(false);
+  const [auditLog, setAuditLog] = useState([
+    { id: 'LOG-01', time: '13:30:00', text: 'Incident Command Initialized. Base Plan PLAN-DELTA-01 Committed.' }
+  ]);
+
+  // Modal State: Inject Citizen/Field Report (Pillar 1)
+  const [showInjectModal, setShowInjectModal] = useState(false);
+  const [injectForm, setInjectForm] = useState({
+    incidentId: 'INC-102',
+    source: 'FIELD_OFFICER',
+    reporterName: 'Officer S. Prakash (SDRF Grid 4)',
+    text: 'Field confirmation: Waterlevel increased to 1.8m, ground floor evacuation immediately required.',
+    isConflicting: false
+  });
 
   // ---------------------------------------------------------------------------
-  // WEBSOCKET REAL-TIME CONNECTION ENGINE
+  // CLOCK TICKER & BACKGROUND SENSOR SIMULATION
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    let reconnectTimeout = null;
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || '127.0.0.1';
-    const wsUrl = `${protocol}//${host}:8000/ws`;
+    const timer = setInterval(() => {
+      const now = new Date();
+      setZuluTime(now.toISOString().substring(11, 19) + 'Z');
+      setIstTime(now.toLocaleTimeString('en-US', { hour12: false }) + ' IST');
 
-    function connect() {
-      console.log(`[ECC WebSocket] Connecting to ${wsUrl}...`);
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('[ECC WebSocket] Connected successfully.');
-        setWsConnected(true);
-      };
-
-      ws.onmessage = (event) => {
-        triggerPacketPulse();
-        try {
-          const payload = JSON.parse(event.data);
-          const { event: evtType, data } = payload;
-
-          if (evtType === 'INITIAL_STATE' || evtType === 'FULL_RESET') {
-            setTimelineTicker(data.timeline_ticker || 'T+00:00:00');
-            setOperatorLoadPct(data.operator_load_pct || 40);
-            setRoadSevered(data.road_severed || false);
-            setSurgeActive(data.surge_active || false);
-            setIncidents(data.incidents || []);
-            setConvoys(data.convoys || []);
-            setGauges(data.gauges || []);
-            setNodes(data.nodes || {});
-            setNetworkGeoJson(data.network_geojson);
-            setInundationGeoJson(data.inundation_geojson);
-            if (data.stats) setStats(data.stats);
-            if (evtType === 'FULL_RESET') setWarningBanner(null);
-          } 
-          else if (evtType === 'TICK') {
-            setTimelineTicker(data.timeline_ticker);
-            setOperatorLoadPct(data.operator_load_pct);
-            setConvoys(data.convoys);
-            if (data.stats) setStats(data.stats);
-          } 
-          else if (evtType === 'GAUGE_UPDATE') {
-            setGauges(data.gauges);
-          } 
-          else if (evtType === 'INCIDENT_UPDATE') {
-            setIncidents(data.incidents);
-            setOperatorLoadPct(data.operator_load_pct);
-          } 
-          else if (evtType === 'ROAD_SUBMERGED') {
-            setRoadSevered(true);
-            setNetworkGeoJson(data.network_geojson);
-            setConvoys(data.convoys);
-            setOperatorLoadPct(data.operator_load_pct);
-            setWarningBanner(
-              "Convoy #3 land artery severed! Saidapet Maraimalai Adigal Bridge submerged by Adyar River surge! Re-routing via Kathipara Elevated Bypass (+14 mins ETA). Amphibious craft requested for final 300m in Velachery."
-            );
-          } 
-          else if (evtType === 'SURGE_TRIGGERED') {
-            setSurgeActive(true);
-            setGauges(data.gauges);
-            setInundationGeoJson(data.inundation_geojson);
-            setOperatorLoadPct(data.operator_load_pct);
-          } 
-          else if (evtType === 'DISPATCH_CONFIRMED') {
-            setIncidents(data.incidents);
-            setConvoys(data.convoys);
-            setOperatorLoadPct(data.operator_load_pct);
-          }
-        } catch (err) {
-          console.error('[ECC WebSocket Message Parse Error]', err);
-        }
-      };
-
-      ws.onclose = () => {
-        console.warn('[ECC WebSocket] Disconnected. Reconnecting in 2.5s...');
-        setWsConnected(false);
-        reconnectTimeout = setTimeout(connect, 2500);
-      };
-
-      ws.onerror = (err) => {
-        console.error('[ECC WebSocket Error]', err);
-        ws.close();
-      };
-    }
-
-    connect();
-
-    return () => {
-      if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      if (wsRef.current) wsRef.current.close();
-    };
+      // Subtle dynamic fluctuations in telemetry
+      setWaterLevel_m(prev => +(prev + (Math.random() - 0.48) * 0.02).toFixed(2));
+      setRainfallInflow(prev => Math.min(85, Math.max(30, Math.round(prev + (Math.random() - 0.5) * 3))));
+      setEvidenceStreamRate(prev => Math.min(25, Math.max(8, Math.round(prev + (Math.random() - 0.5) * 2))));
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  // Dispatch Action via WebSocket
-  const sendWsAction = (eventType, payload = {}) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ event: eventType, payload }));
-    } else {
-      console.warn('[ECC WebSocket] Cannot send action, socket not open.');
-    }
+  // ---------------------------------------------------------------------------
+  // RECALCULATE INCIDENTS WHENEVER REPORTS / CONFLICTS CHANGE
+  // ---------------------------------------------------------------------------
+  const refreshIncidents = (updatedList) => {
+    const recalculated = updatedList.map(inc => {
+      const conf = calculateEvidenceConfidence(inc.reports, inc.hasConflict);
+      const prio = calculateExplainablePriority({ ...inc, evidenceConfidence: conf });
+      return {
+        ...inc,
+        evidenceConfidence: conf,
+        priorityScore: prio.finalScore,
+        priorityBreakdown: prio
+      };
+    });
+    setIncidents(recalculated);
+    const newSolver = solveResourceAllocation(recalculated, teams);
+    setAllocationResult(newSolver);
   };
 
-  // Selected Incident Object
-  const selectedIncident = useMemo(() => {
-    return incidents.find(i => i.id === selectedIncidentId) || incidents[0] || null;
-  }, [incidents, selectedIncidentId]);
+  // ---------------------------------------------------------------------------
+  // JURY CHALLENGE: SEVER CENTRAL BRIDGE EXECUTION
+  // ---------------------------------------------------------------------------
+  const handleSeverCentralBridge = () => {
+    if (isSeveredTriggered) return;
 
-  // Sync allocations when incident selection changes
-  useEffect(() => {
-    if (selectedIncident && selectedIncident.allocated_resources) {
-      setAllocations(selectedIncident.allocated_resources);
-    }
-    if (selectedIncident && selectedIncident.verification_checklist) {
-      setVerificationChecklist(selectedIncident.verification_checklist);
-    }
-  }, [selectedIncidentId]);
+    setIsSeveredTriggered(true);
+    setPlanId('PLAN-DELTA-02 (REPLANNING ACTIVE)');
 
-  // Filtered Incidents List
+    // 1. Invalidate Central Bridge Road Segment
+    setRoadSegments(roads => roads.map(r => {
+      if (r.id === 'ROAD-CENTRAL') {
+        return { ...r, status: 'SEVERED', name: 'Central River Viaduct (SEVERED / BLOCKED)' };
+      }
+      return r;
+    }));
+
+    // 2. Scan active assignments & detect impacted units
+    // NDRF Unit 1 was routed via Central Viaduct to City Hospital ICU
+    setTeams(currTeams => currTeams.map(t => {
+      if (t.id === 'TEAM-01') {
+        return {
+          ...t,
+          isImpacted: true,
+          status: 'REROUTING_PENDING_APPROVAL',
+          currentRoad: 'ROAD-CENTRAL',
+          assignedIncidentId: 'INC-101'
+        };
+      }
+      return { ...t, isImpacted: false };
+    }));
+
+    // 3. Log to Mission Audit Trail
+    const logEntry = {
+      id: `LOG-${Date.now()}`,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      text: 'CRITICAL ARTERY SEVERED: Central River Viaduct submerged (Adyar River breach). Autonomous Replanning Engine triggered.'
+    };
+    setAuditLog(prev => [logEntry, ...prev]);
+
+    // 4. Open Replanning & Plan Diff Hub
+    setRightPanelTab('REPLANNING');
+    setShowReplanningDiffModal(true);
+  };
+
+  // ---------------------------------------------------------------------------
+  // HITL COMMANDER APPROVAL OF REVISED PLAN
+  // ---------------------------------------------------------------------------
+  const handleApproveRevisedPlan = () => {
+    setIsPlanApproved(true);
+    setShowReplanningDiffModal(false);
+    setPlanId('PLAN-DELTA-02 (EXECUTING REVISED CORRIDOR)');
+
+    // Commit Team 1 to West Highland Bypass
+    setTeams(currTeams => currTeams.map(t => {
+      if (t.id === 'TEAM-01') {
+        return {
+          ...t,
+          isImpacted: false,
+          status: 'EN_ROUTE_DETOUR',
+          activeRoadId: 'ROAD-WEST-BYPASS',
+          etaMinutes: 26 // 14 + 12 min penalty
+        };
+      }
+      return t;
+    }));
+
+    // Push approved signoff to audit log
+    const logEntry = {
+      id: `LOG-${Date.now()}`,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      text: 'COMMANDER SIGN-OFF: Revised Transit Plan Authorized. NDRF Unit 1 committed to West Highland Bypass (+12m ETA penalty accepted for flood avoidance).'
+    };
+    setAuditLog(prev => [logEntry, ...prev]);
+  };
+
+  // ---------------------------------------------------------------------------
+  // INJECT REPORT (PILLAR 1 LIVE DEMONSTRATION)
+  // ---------------------------------------------------------------------------
+  const handleInjectReport = (e) => {
+    e.preventDefault();
+    const targetInc = incidents.find(i => i.id === injectForm.incidentId);
+    if (!targetInc) return;
+
+    const newReport = {
+      id: `R-${Date.now()}`,
+      source: injectForm.source,
+      text: `[${injectForm.reporterName}] ${injectForm.text}`,
+      ageMinutes: 1
+    };
+
+    const updated = incidents.map(inc => {
+      if (inc.id === injectForm.incidentId) {
+        return {
+          ...inc,
+          hasConflict: injectForm.isConflicting ? true : inc.hasConflict,
+          reports: [newReport, ...inc.reports]
+        };
+      }
+      return inc;
+    });
+
+    refreshIncidents(updated);
+    setShowInjectModal(false);
+
+    // Add to Audit Log
+    setAuditLog(prev => [{
+      id: `LOG-${Date.now()}`,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      text: `EVIDENCE INGESTION: New ${injectForm.source} report ingested for ${targetInc.id}. Bayesian verification recalculated.`
+    }, ...prev]);
+  };
+
+  // ---------------------------------------------------------------------------
+  // RUN GLOBAL RESOURCE OPTIMIZER (PILLAR 3)
+  // ---------------------------------------------------------------------------
+  const handleRunOptimizer = () => {
+    const res = solveResourceAllocation(incidents, teams);
+    setAllocationResult(res);
+    setRightPanelTab('ALLOCATOR');
+
+    setAuditLog(prev => [{
+      id: `LOG-${Date.now()}`,
+      time: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      text: `OPTIMIZER SOLVER EXECUTED: ${res.assignments.length} units matched. Bottleneck detected: ${res.bottlenecks.join(', ') || 'None'}.`
+    }, ...prev]);
+  };
+
+  // ---------------------------------------------------------------------------
+  // FILTERED QUEUE (PILLAR 2)
+  // ---------------------------------------------------------------------------
   const filteredIncidents = useMemo(() => {
     return incidents.filter(inc => {
-      if (activeFilter === 'Sensor Verified') return inc.bayesian_confidence >= 80;
-      if (activeFilter === 'Citizen SOS') return inc.type === 'CITIZEN_SOS';
-      if (activeFilter === 'Evacuation Active') return inc.dispatch_status === 'DISPATCHED_ACTIVE';
+      if (activeQueueFilter === 'VERIFY') return inc.evidenceConfidence < 70 || inc.hasConflict;
+      if (activeQueueFilter === 'ASSIGNED') return inc.assignedTeamId !== null;
+      if (activeQueueFilter === 'UNSERVED') return inc.assignedTeamId === null;
       return true;
     });
-  }, [incidents, activeFilter]);
-
-  // Trigger Road Severance (Jury Challenge)
-  const handleTriggerRoadSeverance = () => {
-    sendWsAction('ROAD_SEVERANCE');
-  };
-
-  // Simulate Flood Surge
-  const handleSimulateSurge = () => {
-    sendWsAction('SIMULATE_SURGE');
-  };
-
-  // Reset View & Graph
-  const handleReset = () => {
-    sendWsAction('RESET_VIEW');
-  };
-
-  // Inject SOS Distress Signal
-  const handleInjectSOS = () => {
-    sendWsAction('INJECT_SOS', {
-      lat: 13.0185 + (Math.random() - 0.5) * 0.003,
-      lon: 80.2220 + (Math.random() - 0.5) * 0.003,
-      text: "Distress SOS (Saidapet/Kotturpuram): Adyar flood surge entering homes, immediate evacuation craft requested!"
-    });
-  };
-
-  // Clear All Incidents
-  const handleClearIncidents = () => {
-    sendWsAction('CLEAR_INCIDENTS');
-  };
-
-  // Operator Human-in-the-Loop Dispatch Approval
-  const handleApproveDispatch = () => {
-    if (!selectedIncident) return;
-    sendWsAction('APPROVE_DISPATCH', {
-      incident_id: selectedIncident.id,
-      allocations: allocations
-    });
-  };
-
-  // Center Map on Incident Card Click
-  const handleSelectIncident = (inc) => {
-    setSelectedIncidentId(inc.id);
-    setMapCenter(inc.pos);
-    setMapZoom(14);
-  };
+  }, [incidents, activeQueueFilter]);
 
   // ---------------------------------------------------------------------------
   // RENDER INTERFACE
   // ---------------------------------------------------------------------------
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#070b12] text-slate-100 font-sans overflow-hidden select-none">
+    <div className="flex flex-col h-screen w-screen bg-[#020617] text-slate-100 font-sans overflow-hidden select-none">
       
-      {/* ---------------------------------------------------------------------
-          TOP HEADER BAR
-      --------------------------------------------------------------------- */}
-      <header className="h-14 bg-[#0a0f1d] border-b border-slate-800 flex items-center justify-between px-4 z-30 shadow-md">
+      {/* =====================================================================
+          1. COMMAND HEADER & TELEMETRY BAR
+      ===================================================================== */}
+      <header className="h-14 bg-[#0a0f1d] border-b border-slate-800 flex items-center justify-between px-4 z-30 shadow-xl shrink-0">
         
-        {/* Title & Live Pulse Indicator */}
+        {/* Left: Branding & Live Radar Badge */}
         <div className="flex items-center space-x-3">
           <div className="relative flex items-center justify-center">
             <ShieldAlert className="w-6 h-6 text-cyan-400" />
             <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${wsConnected ? 'bg-emerald-400' : 'bg-red-400'} opacity-75`}></span>
-              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${wsConnected ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-base font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent font-mono">
-                ECC: CHENNAI EMERGENCY COMMAND CENTER
+              <span className="text-base font-black tracking-wider bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent font-mono">
+                AEGISFLOOD: AUTONOMOUS DISASTER INTELLIGENCE
               </span>
-              {/* Pulsing Live Badge */}
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all duration-300 ${
-                packetPulse 
-                  ? 'bg-emerald-500 text-slate-950 border-emerald-300 shadow-[0_0_10px_#10b981]' 
-                  : 'bg-emerald-950/80 text-emerald-400 border-emerald-700/50'
-              }`}>
-                ● LIVE / REALTIME
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-700/60 font-mono">
+                LIVE AUTONOMOUS ENGINE
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-mono tracking-tight">
-              AI Disaster Intelligence & Autonomous Relief Coordination (Greater Chennai Corporation)
-            </p>
-          </div>
-        </div>
-
-        {/* Global Timeline Status Ticker */}
-        <div className="hidden lg:flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-3 py-1 rounded-md text-xs font-mono">
-          <Clock className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
-          <span className="text-cyan-300 font-semibold">{timelineTicker}</span>
-          <span className="text-slate-600">|</span>
-          <span className="text-slate-400">
-            {surgeActive ? 'SURGE STATUS: CRITICAL SPIKE' : 'SURGE STATUS: MONITORED'}
-          </span>
-        </div>
-
-        {/* Persona Selector Tabs */}
-        <div className="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800">
-          {['Commander', 'Field Agent', 'Developer'].map((persona) => (
-            <button
-              key={persona}
-              onClick={() => setActivePersona(persona)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                activePersona === persona
-                  ? 'bg-cyan-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {persona}
-            </button>
-          ))}
-        </div>
-
-        {/* Header Live Metric Counters */}
-        <div className="flex items-center space-x-3 text-xs font-mono">
-          <div className="flex items-center space-x-1.5 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
-            <span className="text-slate-400">INCIDENTS:</span>
-            <span className="font-bold text-cyan-400">{stats.total_incidents}</span>
-          </div>
-
-          <div className="flex items-center space-x-1.5 bg-red-950/40 px-2.5 py-1 rounded border border-red-900/60">
-            <span className="text-red-400">CRITICAL:</span>
-            <span className="font-bold text-red-400 animate-pulse">{stats.critical_count}</span>
-          </div>
-
-          {/* Operator Load Bar */}
-          <div className="flex items-center space-x-2 bg-slate-900/80 px-2.5 py-1 rounded border border-slate-800">
-            <span className="text-slate-400">OPERATOR LOAD:</span>
-            <div className="w-16 h-2 bg-slate-800 rounded-full overflow-hidden">
-              <div 
-                className={`h-full transition-all duration-500 ${
-                  operatorLoadPct > 75 ? 'bg-red-500' : operatorLoadPct > 50 ? 'bg-amber-500' : 'bg-emerald-500'
-                }`}
-                style={{ width: `${operatorLoadPct}%` }}
-              ></div>
+            <div className="text-[10px] text-slate-400 font-mono">
+              Mission Operations & Replanning Command Center • Greater Chennai Delta Basin
             </div>
-            <span className={`font-bold ${
-              operatorLoadPct > 75 ? 'text-red-400' : operatorLoadPct > 50 ? 'text-amber-400' : 'text-emerald-400'
-            }`}>
-              {operatorLoadPct}%
+          </div>
+        </div>
+
+        {/* Center: Live Sensor Telemetry & Clock */}
+        <div className="hidden xl:flex items-center space-x-4 text-xs font-mono bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800/80">
+          <div className="flex items-center space-x-1.5">
+            <Clock className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-cyan-300 font-bold">{zuluTime || '13:46:13Z'}</span>
+            <span className="text-slate-500">({istTime || '19:16:13 IST'})</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800"></div>
+
+          {/* Water Level Gauge */}
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400">WATER LEVEL:</span>
+            <span className={`font-bold ${waterLevel_m >= 3.5 ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`}>
+              {waterLevel_m}m
             </span>
+            <span className="text-[10px] text-slate-500">(Limit: 3.5m)</span>
           </div>
+
+          <div className="h-3 w-px bg-slate-800"></div>
+
+          {/* Rain Inflow */}
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-400">INFLOW:</span>
+            <span className="text-amber-400 font-bold">{rainfallInflow} mm/hr</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800"></div>
+
+          {/* Evidence Stream Rate */}
+          <div className="flex items-center space-x-1">
+            <Activity className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+            <span className="text-slate-400">EVIDENCE FEED:</span>
+            <span className="text-purple-300 font-bold">{evidenceStreamRate} msgs/min</span>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800"></div>
+
+          {/* Active Plan ID */}
+          <div className="flex items-center space-x-1">
+            <span className="text-slate-500">PLAN:</span>
+            <span className="text-emerald-400 font-bold">{planId}</span>
+          </div>
+        </div>
+
+        {/* Right: Master Operational Action Bar */}
+        <div className="flex items-center space-x-2">
+          
+          {/* Inject Citizen / Field Report */}
+          <button
+            onClick={() => setShowInjectModal(true)}
+            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-800/80 rounded-md transition-all active:scale-95 shadow"
+          >
+            <Plus className="w-3.5 h-3.5 text-purple-400" />
+            <span>+ Inject Evidence Report</span>
+          </button>
+
+          {/* Run Resource Optimizer */}
+          <button
+            onClick={handleRunOptimizer}
+            className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold bg-sky-950/90 hover:bg-sky-900 text-sky-300 border border-sky-700/80 rounded-md transition-all active:scale-95 shadow"
+          >
+            <Zap className="w-3.5 h-3.5 text-sky-400" />
+            <span>⚡ Run Global Optimizer</span>
+          </button>
+
+          {/* JURY CHALLENGE: SEVER CENTRAL BRIDGE */}
+          <button
+            onClick={handleSeverCentralBridge}
+            disabled={isSeveredTriggered}
+            className={`flex items-center space-x-2 px-3.5 py-1.5 text-xs font-black rounded-md border transition-all active:scale-95 shadow-xl font-mono ${
+              isSeveredTriggered
+                ? 'bg-red-950/60 text-red-400 border-red-800/80 cursor-not-allowed'
+                : 'bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse'
+            }`}
+          >
+            <AlertOctagon className="w-4 h-4 text-white" />
+            <span>🚨 JURY CHALLENGE: SEVER CENTRAL BRIDGE</span>
+          </button>
+
         </div>
 
       </header>
 
-      {/* ---------------------------------------------------------------------
-          DEMO TOOLBAR (Interactive Simulation Loop & Jury Challenge)
-      --------------------------------------------------------------------- */}
-      <div className="h-10 bg-[#0d1322] border-b border-slate-800 flex items-center justify-between px-4 z-20">
-        
-        {/* Filter Pills */}
-        <div className="flex items-center space-x-1.5">
-          <span className="text-[11px] font-mono text-slate-400 mr-1">FILTER:</span>
-          {['All', 'Sensor Verified', 'Citizen SOS', 'Evacuation Active'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveFilter(tab)}
-              className={`px-2.5 py-0.5 text-xs rounded transition-all font-medium ${
-                activeFilter === tab
-                  ? 'bg-slate-700 text-cyan-300 border border-cyan-500/40'
-                  : 'bg-slate-900/60 text-slate-400 hover:text-slate-300 border border-slate-800'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Demo Execution Buttons */}
-        <div className="flex items-center space-x-2">
-          
-          {/* Simulate Flood Surge */}
-          <button
-            onClick={handleSimulateSurge}
-            className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-800/60 rounded transition-all active:scale-95 shadow-sm"
-          >
-            <Flame className="w-3.5 h-3.5 text-sky-400" />
-            <span>Simulate Flood Surge</span>
-          </button>
-
-          {/* Inject Citizen SOS Ping */}
-          <button
-            onClick={handleInjectSOS}
-            className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-800/60 rounded transition-all active:scale-95"
-          >
-            <Zap className="w-3.5 h-3.5 text-purple-400" />
-            <span>Inject Citizen SOS</span>
-          </button>
-
-          {/* JURY CHALLENGE: TRIGGER ROAD SEVERANCE */}
-          <button
-            onClick={handleTriggerRoadSeverance}
-            className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded border transition-all active:scale-95 shadow-lg ${
-              roadSevered
-                ? 'bg-red-950 text-red-300 border-red-700/80 cursor-not-allowed opacity-80'
-                : 'bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white border-red-400 animate-pulse'
-            }`}
-            disabled={roadSevered}
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-white" />
-            <span>Trigger Road Severance (Jury Challenge)</span>
-          </button>
-
-          {/* Reset View & Routes */}
-          <button
-            onClick={handleReset}
-            className="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-semibold bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded transition-all active:scale-95"
-            title="Reset Graph, Bridge, and Convoys"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset View</span>
-          </button>
-
-          {/* Clear Incidents */}
-          <button
-            onClick={handleClearIncidents}
-            className="flex items-center space-x-1.5 px-2 py-1 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 rounded transition-all active:scale-95"
-            title="Clear all active incidents"
-          >
-            <span>Clear</span>
-          </button>
-        </div>
-
-      </div>
-
-      {/* ---------------------------------------------------------------------
-          THREE-PANEL COMMAND DASHBOARD
-      --------------------------------------------------------------------- */}
+      {/* =====================================================================
+          2. THREE-PANEL TACTICAL WORKSPACE
+      ===================================================================== */}
       <div className="flex-1 flex overflow-hidden relative">
 
-        {/* ===================================================================
-            LEFT PANEL: LIVE INCIDENT QUEUE
-        =================================================================== */}
-        <aside className="w-80 md:w-96 bg-[#0a0f1d] border-r border-slate-800 flex flex-col z-10 shrink-0">
+        {/* -------------------------------------------------------------------
+            LEFT PANEL: INCIDENT INTELLIGENCE & PRIORITY QUEUE (Pillars 1 & 2)
+        ------------------------------------------------------------------- */}
+        <aside className="w-88 md:w-96 bg-[#0a0f1d] border-r border-slate-800 flex flex-col z-10 shrink-0">
           
-          {/* Left Panel Header */}
-          <div className="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
-            <div className="flex items-center space-x-2">
-              <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
-              <span className="text-xs font-bold font-mono tracking-wider text-slate-200">
-                LIVE INCIDENT QUEUE
+          {/* Header & Filter Tabs */}
+          <div className="p-3 border-b border-slate-800 bg-slate-900/60 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Radio className="w-4 h-4 text-cyan-400 animate-pulse" />
+                <span className="text-xs font-bold font-mono tracking-wider text-slate-200">
+                  INCIDENT INTELLIGENCE QUEUE
+                </span>
+              </div>
+              <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-1.5 py-0.5 rounded">
+                {incidents.length} MONITORED
               </span>
             </div>
-            <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800/60 px-1.5 py-0.5 rounded">
-              {filteredIncidents.length} STREAMING
-            </span>
+
+            {/* Filter Pills */}
+            <div className="grid grid-cols-4 gap-1 text-[10px] font-mono font-semibold">
+              {[
+                { id: 'ALL', label: 'All Incidents' },
+                { id: 'VERIFY', label: 'Verify (Low/Conf)' },
+                { id: 'ASSIGNED', label: 'Assigned' },
+                { id: 'UNSERVED', label: 'Unserved' }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setActiveQueueFilter(f.id)}
+                  className={`py-1 rounded text-center transition-all ${
+                    activeQueueFilter === f.id
+                      ? 'bg-slate-700 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                      : 'bg-slate-950 text-slate-400 hover:text-slate-300'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Scrollable Incident Cards List */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+          {/* Scrollable Incident Cards */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {filteredIncidents.length === 0 ? (
               <div className="text-center py-12 text-slate-500 font-mono text-xs">
-                No active incidents in this filter category.
+                No incidents match this filter.
               </div>
             ) : (
-              filteredIncidents.map((inc) => {
-                const isSelected = inc.id === selectedIncidentId;
-                const isCritical = inc.category === 'CRITICAL';
-                const isHigh = inc.category === 'HIGH';
+              filteredIncidents.map(inc => {
+                const isSelected = selectedEntity?.data?.id === inc.id;
+                const isWhyExpanded = expandedWhyIncidentId === inc.id;
+                const isCritical = inc.priorityScore >= 75;
+                const isHigh = inc.priorityScore >= 50;
 
                 return (
                   <div
                     key={inc.id}
-                    onClick={() => handleSelectIncident(inc)}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer relative ${
+                    className={`rounded-lg border transition-all text-xs font-mono relative ${
                       isSelected
-                        ? 'bg-slate-800/90 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
-                        : 'bg-slate-900/70 hover:bg-slate-800/60 border-slate-800'
+                        ? 'bg-slate-800/95 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                        : 'bg-slate-900/80 hover:bg-slate-800/60 border-slate-800'
                     }`}
                   >
-                    {/* Header Row: ID, Category Badge, Elapsed Time */}
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center space-x-1.5">
-                        <span className="text-xs font-bold font-mono text-cyan-300">
-                          {inc.id}
+                    {/* Top Row: ID, Priority Badge, Evidence Confidence */}
+                    <div 
+                      onClick={() => {
+                        setSelectedEntity({ type: 'INCIDENT', data: inc });
+                        setMapCenter(inc.pos);
+                      }}
+                      className="p-3 pb-2 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-bold text-cyan-300">{inc.id}</span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            isCritical ? 'bg-red-500/20 text-red-400 border border-red-500/40' :
+                            isHigh ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' :
+                            'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                          }`}>
+                            PRIORITY {inc.priorityScore}
+                          </span>
+                        </div>
+
+                        {/* Evidence Confidence Badge */}
+                        <div className="flex items-center space-x-1 text-[10px]">
+                          <span className="text-slate-400">Confidence:</span>
+                          <span className={`font-bold ${
+                            inc.evidenceConfidence >= 80 ? 'text-emerald-400' :
+                            inc.evidenceConfidence >= 60 ? 'text-amber-400' : 'text-red-400'
+                          }`}>
+                            {inc.evidenceConfidence}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Title & Sector */}
+                      <h4 className="font-sans font-bold text-slate-100 text-xs mb-1 leading-tight">
+                        {inc.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 flex items-center space-x-1 mb-2">
+                        <MapPin className="w-3 h-3 text-cyan-400 shrink-0" />
+                        <span>{inc.sector} • Depth: {inc.inundationDepth_m}m</span>
+                      </p>
+
+                      {/* Conflicting Report Warning Banner */}
+                      {inc.hasConflict && (
+                        <div className="mb-2 p-1.5 bg-red-950/70 border border-red-700/80 rounded text-[10px] text-red-200 flex items-start space-x-1.5 animate-pulse">
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                          <span>⚠️ Conflicting reports: Citizen claims road clear; Field Officer confirms 1.2m waterlogging. Status: Flagged for Verification.</span>
+                        </div>
+                      )}
+
+                      {/* Deduplicated Source Evidence Badges */}
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {inc.reports.map((r, idx) => (
+                          <span 
+                            key={idx}
+                            className="text-[9px] px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-700/80"
+                          >
+                            {r.source.replace('_', ' ')} (T-{r.ageMinutes}m)
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Assignment & Capability Row */}
+                      <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-slate-800/80">
+                        <span className="text-slate-400">
+                          Req: <strong className="text-amber-300">{inc.requiredCapability.replace('_', ' ')}</strong>
                         </span>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded font-mono ${
-                          isCritical 
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/40' 
-                            : isHigh 
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' 
-                            : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                        <span className={`px-1.5 py-0.5 rounded font-bold ${
+                          inc.assignedTeamId
+                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                            : 'bg-red-950 text-red-400 border border-red-800 animate-pulse'
                         }`}>
-                          {inc.category}
+                          {inc.assignedTeamId ? `ASSIGNED: ${inc.assignedTeamId}` : 'QUEUED (UNSERVED)'}
                         </span>
-                      </div>
-                      <span className="text-[10px] font-mono text-slate-400 flex items-center space-x-1">
-                        <Clock className="w-3 h-3 text-slate-500" />
-                        <span>{inc.time_elapsed}</span>
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h4 className="text-xs font-semibold text-slate-200 line-clamp-1 mb-1">
-                      {inc.title}
-                    </h4>
-
-                    {/* Sector & trapped civilians count */}
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2">
-                      <span>{inc.sector}</span>
-                      <span className="text-slate-300 font-mono">
-                        ~{inc.civilians_trapped} Civilians
-                      </span>
-                    </div>
-
-                    {/* Spatio-Temporal Clustering & Bayesian Verification Score Meter */}
-                    <div className="bg-slate-950/70 p-2 rounded border border-slate-800/80 mb-2">
-                      <div className="flex items-center justify-between text-[10px] font-mono mb-1">
-                        <span className="text-slate-400 flex items-center space-x-1">
-                          <Users className="w-3 h-3 text-cyan-400" />
-                          <span>Cluster: {inc.cluster_count} calls ({inc.cluster_radius_m}m)</span>
-                        </span>
-                        <span className={`font-bold ${
-                          inc.bayesian_confidence >= 85 ? 'text-emerald-400' : inc.bayesian_confidence >= 60 ? 'text-amber-400' : 'text-slate-400'
-                        }`}>
-                          Bayesian: {inc.bayesian_confidence}%
-                        </span>
-                      </div>
-
-                      {/* Progress Bar (Watch 35% -> 72% -> 94%) */}
-                      <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-700 ${
-                            inc.bayesian_confidence >= 85 ? 'bg-gradient-to-r from-emerald-500 to-cyan-400' :
-                            inc.bayesian_confidence >= 60 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' :
-                            'bg-slate-500'
-                          }`}
-                          style={{ width: `${inc.bayesian_confidence}%` }}
-                        ></div>
                       </div>
                     </div>
 
-                    {/* Dispatch Status Pill */}
-                    <div className="flex items-center justify-between text-[10px] font-mono">
-                      <span className={`px-2 py-0.5 rounded ${
-                        inc.dispatch_status === 'DISPATCHED_ACTIVE'
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                          : 'bg-amber-950/70 text-amber-300 border border-amber-800/60 animate-pulse'
-                      }`}>
-                        {inc.dispatch_status === 'DISPATCHED_ACTIVE' ? 'DISPATCHED ACTIVE' : 'PENDING OPERATOR LOCK'}
-                      </span>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                    {/* Interactive "Why This Priority?" Explainer Section */}
+                    <div className="border-t border-slate-800/80 bg-slate-950/60 p-2 rounded-b-lg">
+                      <button
+                        onClick={() => setExpandedWhyIncidentId(isWhyExpanded ? null : inc.id)}
+                        className="w-full flex items-center justify-between text-[10px] text-cyan-400 hover:text-cyan-300 font-bold"
+                      >
+                        <span className="flex items-center space-x-1">
+                          <HelpCircle className="w-3 h-3 text-cyan-400" />
+                          <span>Why Priority {inc.priorityScore}? (Explainable AI Breakdown)</span>
+                        </span>
+                        <span>{isWhyExpanded ? '▲' : '▼'}</span>
+                      </button>
+
+                      {isWhyExpanded && (
+                        <div className="mt-2 pt-2 border-t border-slate-800/80 space-y-1.5 text-[10px] text-slate-300">
+                          <div className="grid grid-cols-2 gap-1 text-[9px] bg-slate-900 p-1.5 rounded border border-slate-800">
+                            <div>Threat to Life (30%): <strong className="text-red-400">{inc.priorityBreakdown.subScores.threat}</strong></div>
+                            <div>Population Risk (25%): <strong className="text-amber-400">{inc.priorityBreakdown.subScores.population}</strong></div>
+                            <div>Vulnerability (20%): <strong className="text-purple-400">{inc.priorityBreakdown.subScores.vulnerability}</strong></div>
+                            <div>Access Ingress (15%): <strong className="text-cyan-400">{inc.priorityBreakdown.subScores.access}</strong></div>
+                            <div className="col-span-2">Evidence Confidence (10%): <strong className="text-emerald-400">{inc.priorityBreakdown.subScores.confidence}%</strong></div>
+                          </div>
+                          <div className="p-1.5 bg-cyan-950/30 border border-cyan-800/40 rounded text-cyan-200 text-[10px]">
+                            <strong>Coordinator Recommendation:</strong> {inc.recommendedAction}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                   </div>
@@ -672,382 +1031,309 @@ export default function App() {
             )}
           </div>
 
-          {/* River Gauge Quick HUD Mini-Dock */}
-          <div className="p-2.5 bg-slate-950 border-t border-slate-800">
-            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-              <span>Telemetry River Gauges</span>
-              <span className="text-cyan-400 font-bold">1.5m Alert Limit</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {gauges.map(g => (
-                <div 
-                  key={g.id} 
-                  className={`p-1.5 rounded border text-center font-mono ${
-                    g.level >= g.critical_threshold 
-                      ? 'bg-red-950/80 border-red-800 text-red-300 animate-pulse' 
-                      : g.level >= g.warning_threshold
-                      ? 'bg-amber-950/70 border-amber-800 text-amber-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-300'
-                  }`}
-                >
-                  <div className="text-[9px] text-slate-400 truncate">{g.id}</div>
-                  <div className="text-xs font-bold">{g.level}m</div>
-                  <div className="text-[8px] text-slate-500">{g.trend}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </aside>
 
-        {/* ===================================================================
-            CENTER PANEL: LIVE TACTICAL LEAFLET MAP & HUD
-        =================================================================== */}
+        {/* -------------------------------------------------------------------
+            CENTER PANEL: TACTICAL GIS CANVAS (Pillars 4 & 5)
+        ------------------------------------------------------------------- */}
         <main className="flex-1 relative flex flex-col bg-[#070e17]">
           
-          {/* Flashing Amber Warning Banner for Road Severance */}
-          {warningBanner && (
-            <div className="absolute top-3 left-4 right-4 z-[500] bg-gradient-to-r from-amber-600 via-amber-700 to-rose-700 text-white p-3 rounded-lg shadow-2xl border-2 border-amber-400 flex items-center justify-between animate-bounce">
+          {/* Top Banner: Severe Road Cutoff Alert (Feature 5) */}
+          {isSeveredTriggered && (
+            <div className="absolute top-3 left-4 right-4 z-[500] bg-gradient-to-r from-red-600 via-rose-700 to-amber-700 text-white p-3 rounded-lg shadow-2xl border-2 border-red-400 flex items-center justify-between animate-bounce">
               <div className="flex items-center space-x-3">
-                <AlertTriangle className="w-6 h-6 text-yellow-200 shrink-0" />
+                <AlertOctagon className="w-6 h-6 text-yellow-200 shrink-0" />
                 <div>
-                  <div className="font-extrabold text-sm tracking-wide">
-                    CRITICAL LAND ARTERY SEVERED (JURY CHALLENGE)
+                  <div className="font-extrabold text-sm tracking-wide font-mono">
+                    🚨 JURY CHALLENGE: CENTRAL RIVER VIADUCT SEVERED
                   </div>
-                  <div className="text-xs text-amber-100 font-mono">
-                    {warningBanner}
+                  <div className="text-xs text-red-100 font-mono">
+                    NDRF Unit 1 land artery blocked by Adyar flash surge! Dynamic replanning rerouted via West Highland Bypass (+12m ETA penalty).
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => setWarningBanner(null)}
-                className="bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-2 py-1 rounded text-xs font-mono border border-amber-600"
-              >
-                DISMISS
-              </button>
+              <div className="flex items-center space-x-2">
+                {!isPlanApproved ? (
+                  <button
+                    onClick={() => setShowReplanningDiffModal(true)}
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 px-3 py-1.5 rounded font-black text-xs font-mono shadow border border-white"
+                  >
+                    REVIEW & APPROVE PLAN DIFF
+                  </button>
+                ) : (
+                  <span className="bg-emerald-950 text-emerald-300 border border-emerald-500 px-2 py-1 rounded text-xs font-mono font-bold">
+                    ✓ REVISED PLAN COMMITTED
+                  </span>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Floating Layers HUD Switcher Box */}
+          {/* Floating Map Layers HUD Switcher */}
           <div className="absolute top-4 right-4 z-[400] bg-slate-950/90 border border-slate-800 p-2.5 rounded-lg shadow-xl text-xs font-mono backdrop-blur-md max-w-xs">
             <div className="flex items-center space-x-1.5 text-cyan-400 font-bold mb-2 pb-1 border-b border-slate-800">
               <Layers className="w-3.5 h-3.5" />
-              <span>TACTICAL LAYERS</span>
+              <span>TACTICAL GIS LAYERS</span>
             </div>
-            <div className="space-y-1.5">
-              {Object.keys(layersHUD).map((layerKey) => (
-                <label key={layerKey} className="flex items-center justify-between space-x-3 cursor-pointer text-slate-300 hover:text-white">
-                  <span className="capitalize">{layerKey.replace(/([A-Z])/g, ' $1')}</span>
+            <div className="space-y-1 text-[11px]">
+              {Object.keys(layersHUD).map(key => (
+                <label key={key} className="flex items-center justify-between space-x-3 cursor-pointer text-slate-300 hover:text-white">
+                  <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                   <input
                     type="checkbox"
-                    checked={layersHUD[layerKey]}
-                    onChange={(e) => setLayersHUD({ ...layersHUD, [layerKey]: e.target.checked })}
+                    checked={layersHUD[key]}
+                    onChange={(e) => setLayersHUD({ ...layersHUD, [key]: e.target.checked })}
                     className="accent-cyan-500 rounded cursor-pointer"
                   />
                 </label>
               ))}
             </div>
+          </div>
 
-            {/* Base Map Selector & Map API Key Input */}
-            <div className="mt-2.5 pt-2 border-t border-slate-800">
-              <div className="flex items-center justify-between text-slate-400 font-bold text-[10px] mb-1.5">
-                <span>MAP PROVIDER (KEY ACTIVE)</span>
-                <button
-                  onClick={() => setShowKeyInput(!showKeyInput)}
-                  className="text-[9px] text-cyan-400 hover:text-cyan-300 underline font-mono"
-                >
-                  {showKeyInput ? 'Hide Key' : '🔑 API Key'}
-                </button>
+          {/* Entity Quick Inspector Drawer (Bottom Left) */}
+          {selectedEntity && (
+            <div className="absolute bottom-4 left-4 z-[400] bg-slate-950/95 border border-slate-700 p-3 rounded-lg shadow-2xl text-xs font-mono max-w-sm backdrop-blur-md">
+              <div className="flex items-center justify-between pb-1 mb-1 border-b border-slate-800">
+                <span className="font-bold text-cyan-400 uppercase">
+                  {selectedEntity.type} INSPECTOR: {selectedEntity.data.id || selectedEntity.data.name}
+                </span>
+                <button onClick={() => setSelectedEntity(null)} className="text-slate-400 hover:text-white">✕</button>
               </div>
-
-              {showKeyInput && (
-                <div className="mb-2 p-1.5 bg-slate-900 border border-slate-800 rounded">
-                  <div className="text-[9px] text-slate-400 mb-1">Active Map API Key:</div>
-                  <input
-                    type="text"
-                    value={tempApiKey}
-                    onChange={(e) => setTempApiKey(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-white font-mono mb-1 select-all"
-                  />
-                  <button
-                    onClick={() => {
-                      setMapApiKey(tempApiKey);
-                      localStorage.setItem('ecc_map_api_key', tempApiKey);
-                      setShowKeyInput(false);
-                    }}
-                    className="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-0.5 rounded text-[9px]"
-                  >
-                    Save Key
-                  </button>
+              {selectedEntity.type === 'INCIDENT' && (
+                <div className="space-y-1 text-[11px] text-slate-300">
+                  <p><strong>Title:</strong> {selectedEntity.data.title}</p>
+                  <p><strong>Threat:</strong> {selectedEntity.data.vulnerabilityLabel}</p>
+                  <p><strong>Depth:</strong> {selectedEntity.data.inundationDepth_m}m • <strong>Trapped:</strong> ~{selectedEntity.data.populationTrapped}</p>
+                  <p><strong>Assigned Unit:</strong> <span className="text-emerald-400">{selectedEntity.data.assignedTeamId || 'Unserved'}</span></p>
                 </div>
               )}
-
-              <select
-                value={mapBaseLayer}
-                onChange={(e) => {
-                  setMapBaseLayer(e.target.value);
-                  localStorage.setItem('ecc_map_baselayer', e.target.value);
-                }}
-                className="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-[10px] text-slate-200 font-mono cursor-pointer"
-              >
-                <option value="geoapify_dark">★ Geoapify Tactical Dark (Key Active)</option>
-                <option value="geoapify_osm">Geoapify OSM Bright (Key Active)</option>
-                <option value="google_hybrid">Google Hybrid (Satellite + Roads)</option>
-                <option value="google_roadmap">Google Maps (Roadmap)</option>
-                <option value="google_terrain">Google Maps (Terrain)</option>
-                <option value="cartodb_dark">CartoDB Dark Matter</option>
-              </select>
+              {selectedEntity.type === 'TEAM' && (
+                <div className="space-y-1 text-[11px] text-slate-300">
+                  <p><strong>Unit:</strong> {selectedEntity.data.callsign}</p>
+                  <p><strong>Capabilities:</strong> {selectedEntity.data.capabilities.join(', ')}</p>
+                  <p><strong>Equipment:</strong> {selectedEntity.data.gear}</p>
+                  <p><strong>Battery/Fuel:</strong> {selectedEntity.data.batteryPct}% • <strong>Status:</strong> <span className="text-cyan-300">{selectedEntity.data.status}</span></p>
+                </div>
+              )}
+              {selectedEntity.type === 'SHELTER' && (
+                <div className="space-y-1 text-[11px] text-slate-300">
+                  <p><strong>Shelter:</strong> {selectedEntity.data.name}</p>
+                  <p><strong>Saturation:</strong> {selectedEntity.data.occupancy} / {selectedEntity.data.capacity} ({Math.round((selectedEntity.data.occupancy / selectedEntity.data.capacity) * 100)}%)</p>
+                  {Math.round((selectedEntity.data.occupancy / selectedEntity.data.capacity) * 100) >= 90 && (
+                    <p className="text-red-400 font-bold">⚠️ INTAKE DIVERTED to City Indoor Arena</p>
+                  )}
+                  <p><strong>Facilities:</strong> {selectedEntity.data.amenities}</p>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
-          {/* Persona View Indicator Bar */}
-          <div className="absolute bottom-4 left-4 z-[400] bg-slate-950/85 border border-slate-800 px-3 py-1.5 rounded-lg shadow-lg text-[11px] font-mono text-slate-300 flex items-center space-x-2 backdrop-blur-md">
-            <Compass className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Active Perspective: <strong className="text-cyan-400">{activePersona.toUpperCase()}</strong></span>
-            <span className="text-slate-600">|</span>
-            <span className="text-emerald-400">Dijkstra Routing: ACTIVE</span>
-          </div>
-
-          {/* Leaflet Tactical Map Canvas */}
+          {/* Google Maps Tactical GIS Map */}
           <div className="relative flex-1 w-full h-full min-h-0">
-            <MapContainer
+            <GoogleTacticalMap
               center={mapCenter}
               zoom={mapZoom}
-              className="w-full h-full"
-              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-              zoomControl={false}
-            >
+              floodZones={INUNDATION_POLYGONS}
+              roadSegments={roadSegments}
+              incidents={incidents}
+              teams={teams}
+              shelters={shelters}
+              depots={depots}
+              accidents={[]}
+              layersHUD={layersHUD}
+              isPlanApproved={isPlanApproved}
+              routes={[]}
+              selectedEntity={selectedEntity}
+              onSelectEntity={(entity) => {
+                setSelectedEntity(entity);
+                if (entity.type === 'INCIDENT') setExpandedWhyIncidentId(entity.data.id);
+              }}
+            />
+            <div className="hidden">
+              {false && (
+                <MapContainer
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  className="w-full h-full"
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                  zoomControl={false}
+                >
               <MapViewController center={mapCenter} zoom={mapZoom} />
 
-              {/* Dynamic Base Tile Layer */}
-              {mapBaseLayer === 'geoapify_dark' ? (
-                <TileLayer
-                  key={`geoapify-dark-${mapApiKey}`}
-                  url={`https://maps.geoapify.com/v1/tile/dark-matter-purple-roads/{z}/{x}/{y}.png?apiKey=${mapApiKey}`}
-                  attribution='&copy; <a href="https://www.geoapify.com/">Geoapify</a>'
-                  maxZoom={20}
-                />
-              ) : mapBaseLayer === 'geoapify_osm' ? (
-                <TileLayer
-                  key={`geoapify-osm-${mapApiKey}`}
-                  url={`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${mapApiKey}`}
-                  attribution='&copy; <a href="https://www.geoapify.com/">Geoapify</a>'
-                  maxZoom={20}
-                />
-              ) : mapBaseLayer === 'google_hybrid' ? (
-                <TileLayer
-                  key={`google-hybrid-${mapApiKey}`}
-                  url={`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}${mapApiKey ? `&key=${mapApiKey}` : ''}`}
-                  attribution='&copy; Google Maps'
-                  maxZoom={20}
-                />
-              ) : mapBaseLayer === 'google_roadmap' ? (
-                <TileLayer
-                  key={`google-roadmap-${mapApiKey}`}
-                  url={`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}${mapApiKey ? `&key=${mapApiKey}` : ''}`}
-                  attribution='&copy; Google Maps'
-                  maxZoom={20}
-                />
-              ) : mapBaseLayer === 'google_terrain' ? (
-                <TileLayer
-                  key={`google-terrain-${mapApiKey}`}
-                  url={`https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}${mapApiKey ? `&key=${mapApiKey}` : ''}`}
-                  attribution='&copy; Google Maps'
-                  maxZoom={20}
-                />
-              ) : (
-                <TileLayer
-                  key="cartodb-dark"
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-                />
-              )}
+              {/* CartoDB Dark Matter Base Tiles */}
+              <TileLayer
+                url={mapTileUrlWithApiKey}
+                attribution={
+                  import.meta.env.VITE_MAP_ATTRIBUTION ||
+                  '&copy; <a href="https://carto.com/">CARTO</a>'
+                }
+                maxZoom={20}
+              />
 
-              {/* 1. Inundation Zones (Flood Polygons) */}
-              {layersHUD.inundation && inundationGeoJson && inundationGeoJson.features.map((feat, idx) => {
-                const isSurge = feat.properties.surge_active;
-                const polygonCoords = feat.geometry.coordinates[0].map(coord => [coord[1], coord[0]]);
-                return (
-                  <Polygon
-                    key={`flood-${idx}`}
-                    positions={polygonCoords}
-                    pathOptions={{
-                      color: isSurge ? '#ef4444' : '#0284c7',
-                      fillColor: isSurge ? '#ef4444' : '#0369a1',
-                      fillOpacity: isSurge ? 0.45 : 0.25,
-                      weight: isSurge ? 2 : 1,
-                      dashArray: isSurge ? '4, 4' : null
-                    }}
-                  >
-                    <Popup className="tactical-popup">
-                      <div className="font-mono text-xs p-1">
-                        <strong className="text-cyan-400">{feat.properties.name}</strong>
-                        <p className="text-slate-300">Severity: {feat.properties.severity}</p>
-                        <p className="text-slate-300">Avg Water Depth: {feat.properties.depth_m}m</p>
-                      </div>
-                    </Popup>
-                  </Polygon>
-                );
-              })}
+              {/* 1. Inundation Hazard Zones */}
+              {layersHUD.inundation && INUNDATION_POLYGONS.map(poly => (
+                <Polygon
+                  key={poly.id}
+                  positions={poly.coords}
+                  pathOptions={{
+                    color: poly.color,
+                    fillColor: poly.color,
+                    fillOpacity: poly.fillOpacity,
+                    weight: 2,
+                    dashArray: '4, 4'
+                  }}
+                >
+                  <Popup className="tactical-popup">
+                    <div className="font-mono text-xs p-1">
+                      <strong className="text-cyan-400">{poly.name}</strong>
+                      <p className="text-slate-300">Peak Flood Depth: <strong>{poly.depth}</strong></p>
+                    </div>
+                  </Popup>
+                </Polygon>
+              ))}
 
-              {/* 2. Tactical Road Network Edges */}
-              {layersHUD.activeRoutes && networkGeoJson && networkGeoJson.features.map((edge, idx) => {
-                const isSubmerged = edge.properties.status === 'SUBMERGED';
-                const isBridge = edge.properties.is_bridge;
-                const coords = edge.geometry.coordinates.map(c => [c[1], c[0]]);
-
-                if (isSubmerged && !layersHUD.blockedRoads) return null;
+              {/* 2. Active Transit Corridors & Road Segments */}
+              {layersHUD.transitCorridors && roadSegments.map(road => {
+                const isSevered = road.status === 'SEVERED';
+                const isWestBypass = road.id === 'ROAD-WEST-BYPASS';
 
                 return (
                   <Polyline
-                    key={`edge-${idx}`}
-                    positions={coords}
+                    key={road.id}
+                    positions={road.waypoints}
                     pathOptions={{
-                      color: isSubmerged ? '#ef4444' : isBridge ? '#f59e0b' : '#334155',
-                      weight: isSubmerged ? 4 : isBridge ? 3 : 2,
-                      dashArray: isSubmerged ? '6, 6' : null,
-                      opacity: isSubmerged ? 0.9 : 0.65
+                      color: isSevered ? '#ef4444' : isWestBypass && isPlanApproved ? '#10b981' : isWestBypass ? '#f59e0b' : '#38bdf8',
+                      weight: isSevered ? 5 : 3,
+                      dashArray: isSevered ? '8, 8' : isWestBypass && !isPlanApproved ? '4, 4' : null,
+                      opacity: isSevered ? 0.95 : 0.8
                     }}
                   >
                     <Popup className="tactical-popup">
                       <div className="font-mono text-xs p-1">
-                        <p className="font-bold text-white">{edge.properties.road_name}</p>
-                        <p className="text-slate-400">Status: <span className={isSubmerged ? 'text-red-400' : 'text-emerald-400'}>{edge.properties.status}</span></p>
-                        <p className="text-slate-400">Weight: {edge.properties.weight} mins</p>
+                        <strong>{road.name}</strong>
+                        <p className={isSevered ? 'text-red-400 font-bold' : 'text-emerald-400'}>
+                          Status: {road.status}
+                        </p>
                       </div>
                     </Popup>
                   </Polyline>
                 );
               })}
 
-              {/* 3. Convoy Polylines & Moving Markers */}
-              {layersHUD.responders && convoys.map((conv) => {
-                return (
-                  <React.Fragment key={conv.id}>
-                    {conv.polyline && conv.polyline.length > 0 && (
-                      <Polyline
-                        positions={conv.polyline}
-                        pathOptions={{
-                          color: conv.rerouted ? '#f59e0b' : '#06b6d4',
-                          weight: 3,
-                          dashArray: conv.rerouted ? '4, 4' : null,
-                          opacity: 0.85
-                        }}
-                      />
-                    )}
-                    <Marker
-                      position={conv.pos}
-                      icon={createConvoyIcon(conv)}
-                    >
-                      <Popup className="tactical-popup">
-                        <div className="font-mono text-xs p-1">
-                          <strong className="text-cyan-400">{conv.callsign}</strong>
-                          <p className="text-slate-300">Status: <span className="text-emerald-400">{conv.status}</span></p>
-                          <p className="text-slate-300">ETA: {conv.eta_minutes} mins</p>
-                          {conv.warning_msg && (
-                            <p className="text-amber-400 text-[10px] mt-1 border-t border-slate-700 pt-1">
-                              {conv.warning_msg}
-                            </p>
-                          )}
-                        </div>
-                      </Popup>
-                    </Marker>
-                  </React.Fragment>
-                );
-              })}
-
-              {/* 4. Incident Pins & Spatio-Temporal Cluster Rings */}
-              {layersHUD.incidents && incidents.map((inc) => {
-                const isSelected = inc.id === selectedIncidentId;
-                return (
-                  <React.Fragment key={inc.id}>
-                    {layersHUD.clusters && (
-                      <Circle
-                        center={inc.pos}
-                        radius={inc.cluster_radius_m || 200}
-                        pathOptions={{
-                          color: inc.category === 'CRITICAL' ? '#ef4444' : '#06b6d4',
-                          fillColor: inc.category === 'CRITICAL' ? '#ef4444' : '#06b6d4',
-                          fillOpacity: 0.12,
-                          weight: 1,
-                          dashArray: '3, 3'
-                        }}
-                      />
-                    )}
-                    <Marker
-                      position={inc.pos}
-                      icon={createIncidentIcon(inc.category, isSelected)}
-                      eventHandlers={{
-                        click: () => handleSelectIncident(inc)
-                      }}
-                    >
-                      <Popup className="tactical-popup">
-                        <div className="font-mono text-xs p-1">
-                          <div className="font-bold text-cyan-400">{inc.id} - {inc.category}</div>
-                          <p className="text-slate-200 mt-1">{inc.title}</p>
-                          <p className="text-slate-400 mt-1">Bayesian Verified: <strong>{inc.bayesian_confidence}%</strong></p>
-                          <p className="text-slate-400">Trapped: ~{inc.civilians_trapped} people</p>
-                        </div>
-                      </Popup>
-                    </Marker>
-                  </React.Fragment>
-                );
-              })}
-
-              {/* 5. River Gauge Telemetry Pins */}
-              {gauges.map((gauge) => (
+              {/* 3. Incidents Markers */}
+              {layersHUD.incidents && incidents.map(inc => (
                 <Marker
-                  key={gauge.id}
-                  position={gauge.pos}
-                  icon={createGaugeIcon(gauge)}
+                  key={inc.id}
+                  position={inc.pos}
+                  icon={createIncidentPin(inc.priorityScore, selectedEntity?.data?.id === inc.id)}
+                  eventHandlers={{
+                    click: () => {
+                      setSelectedEntity({ type: 'INCIDENT', data: inc });
+                      setExpandedWhyIncidentId(inc.id);
+                    }
+                  }}
                 >
                   <Popup className="tactical-popup">
                     <div className="font-mono text-xs p-1">
-                      <strong className="text-cyan-400">{gauge.name} ({gauge.id})</strong>
-                      <p className="text-slate-300">Level: <span className="font-bold text-white">{gauge.level}m</span></p>
-                      <p className="text-slate-400">Flow: {gauge.flow_rate_cms} m³/s ({gauge.trend})</p>
-                      <p className="text-slate-400">Warning Threshold: {gauge.warning_threshold}m</p>
+                      <div className="text-cyan-400 font-bold">{inc.id} - Priority {inc.priorityScore}</div>
+                      <p className="text-slate-200 mt-1">{inc.title}</p>
+                      <p className="text-slate-400">Trapped: ~{inc.populationTrapped} ({inc.vulnerabilityLabel})</p>
+                      <p className="text-slate-400">Evidence Confidence: <strong>{inc.evidenceConfidence}%</strong></p>
                     </div>
                   </Popup>
                 </Marker>
               ))}
 
-              {/* 6. Static Strategic Nodes */}
-              {Object.keys(nodes).map((nodeKey) => {
-                const node = nodes[nodeKey];
-                return (
-                  <Marker
-                    key={nodeKey}
-                    position={node.pos}
-                    icon={createNodeIcon(node)}
-                  >
-                    <Popup className="tactical-popup">
-                      <div className="font-mono text-xs p-1">
-                        <strong className="text-slate-200">{node.name}</strong>
-                        <p className="text-slate-400">Type: {node.type}</p>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
+              {/* 4. Rescue Teams */}
+              {layersHUD.teams && teams.map(team => (
+                <Marker
+                  key={team.id}
+                  position={team.pos}
+                  icon={createTeamPin(team)}
+                  eventHandlers={{
+                    click: () => setSelectedEntity({ type: 'TEAM', data: team })
+                  }}
+                >
+                  <Popup className="tactical-popup">
+                    <div className="font-mono text-xs p-1">
+                      <strong className="text-emerald-400">{team.callsign}</strong>
+                      <p className="text-slate-300">Status: {team.status}</p>
+                      <p className="text-slate-300">Gear: {team.gear}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
 
-            </MapContainer>
+              {/* 5. Highland Shelters */}
+              {layersHUD.shelters && shelters.map(shelter => (
+                <Marker
+                  key={shelter.id}
+                  position={shelter.pos}
+                  icon={createShelterPin(shelter)}
+                  eventHandlers={{
+                    click: () => setSelectedEntity({ type: 'SHELTER', data: shelter })
+                  }}
+                >
+                  <Popup className="tactical-popup">
+                    <div className="font-mono text-xs p-1">
+                      <strong className="text-cyan-400">{shelter.name}</strong>
+                      <p className="text-slate-300">Occupancy: {shelter.occupancy} / {shelter.capacity} ({Math.round((shelter.occupancy/shelter.capacity)*100)}%)</p>
+                      {shelter.occupancy / shelter.capacity >= 0.9 && (
+                        <p className="text-red-400 font-bold">⚠️ INTAKE DIVERTED</p>
+                      )}
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+
+              {/* 6. Supply Depots */}
+              {layersHUD.depots && depots.map(depot => (
+                <Marker
+                  key={depot.id}
+                  position={depot.pos}
+                  icon={L.divIcon({
+                    html: `
+                      <div class="flex flex-col items-center">
+                        <div class="w-6 h-6 rounded bg-indigo-900 border border-indigo-400 flex items-center justify-center text-xs shadow">
+                          📦
+                        </div>
+                        <div class="text-[7px] font-mono text-indigo-300 bg-slate-950 px-1 rounded mt-0.5 whitespace-nowrap">
+                          ${depot.id}
+                        </div>
+                      </div>
+                    `,
+                    className: 'custom-depot-pin',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                  })}
+                >
+                  <Popup className="tactical-popup">
+                    <div className="font-mono text-xs p-1">
+                      <strong className="text-indigo-400">{depot.name}</strong>
+                      <p className="text-slate-300 mt-1">{depot.stock}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+
+                </MapContainer>
+              )}
+            </div>
           </div>
 
         </main>
 
-        {/* ===================================================================
-            RIGHT PANEL: HUMAN-IN-THE-LOOP TRIAGE HUB
-        =================================================================== */}
-        <aside className="w-84 md:w-96 bg-[#0a0f1d] border-l border-slate-800 flex flex-col z-10 shrink-0">
+        {/* -------------------------------------------------------------------
+            RIGHT PANEL: DYNAMIC COMMAND COCKPIT & OPTIMIZER (Pillars 3 & 5)
+        ------------------------------------------------------------------- */}
+        <aside className="w-88 md:w-96 bg-[#0a0f1d] border-l border-slate-800 flex flex-col z-10 shrink-0">
           
-          {/* Right Panel Tabs */}
+          {/* Top Tabs */}
           <div className="flex border-b border-slate-800 bg-slate-900/60 p-1">
             {[
-              { id: 'TRIAGE', label: 'TRIAGE' },
-              { id: 'OPERATOR DISPATCH', label: 'DISPATCH' },
-              { id: 'EXPLAINABILITY', label: 'EXPLAIN' },
-              { id: 'RESOURCES', label: 'RESOURCES' }
+              { id: 'ALLOCATOR', label: 'OPTIMIZER (P3)' },
+              { id: 'SHELTERS', label: 'SHELTERS (P4)' },
+              { id: 'REPLANNING', label: 'REPLANNING (P5)' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1063,176 +1349,197 @@ export default function App() {
             ))}
           </div>
 
-          {/* Tab 1: Human-in-the-Loop Triage */}
-          {rightPanelTab === 'TRIAGE' && selectedIncident && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* TAB 1: RESOURCE ALLOCATOR SOLVER (FEATURE 3) */}
+          {rightPanelTab === 'ALLOCATOR' && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 font-mono text-xs">
               
-              {/* Incident Header */}
-              <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-lg">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-mono font-bold text-cyan-400">
-                    {selectedIncident.id}
+              {/* Summary Bar */}
+              <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-800">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-200 mb-1.5">
+                  <span className="flex items-center space-x-1.5">
+                    <Boxes className="w-4 h-4 text-cyan-400" />
+                    <span>BIPARTITE CAPABILITY SOLVER</span>
                   </span>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded font-mono ${
-                    selectedIncident.category === 'CRITICAL' 
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/40' 
-                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                  }`}>
-                    {selectedIncident.category}
-                  </span>
+                  <span className="text-emerald-400">{allocationResult.assignments.length} Matched</span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-100 mb-1">
-                  {selectedIncident.title}
-                </h3>
-                <p className="text-xs text-slate-400 font-mono">
-                  {selectedIncident.sector} • GPS: [{selectedIncident.pos[0]}, {selectedIncident.pos[1]}]
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Solves constrained knapsack matching between prioritized incidents and vehicle equipment profiles.
                 </p>
               </div>
 
-              {/* RECOMMENDED AI ACTION BOX */}
-              <div className="bg-gradient-to-br from-cyan-950/40 via-slate-900 to-indigo-950/30 border border-cyan-500/40 p-3 rounded-lg shadow-md">
-                <div className="flex items-center space-x-1.5 text-xs font-bold text-cyan-300 font-mono mb-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '6s' }} />
-                  <span>RECOMMENDED AI ACTION</span>
+              {/* Active Assignments Matrix */}
+              <div className="space-y-2">
+                <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                  Active Optimal Matches
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  {selectedIncident.ai_recommendation}
-                </p>
-                <div className="mt-2 pt-2 border-t border-slate-800 text-[10px] font-mono text-cyan-400/90 flex items-center justify-between">
-                  <span>Confidence: {selectedIncident.bayesian_confidence}%</span>
-                  <span>Clustered Pings: {selectedIncident.cluster_count}</span>
-                </div>
-              </div>
-
-              {/* MISSING FIELDS / REQUIRED VERIFICATION CHECKLIST */}
-              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-lg">
-                <div className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  Missing Fields / Required Verification
-                </div>
-                <div className="space-y-2 text-xs font-mono">
-                  {[
-                    { key: 'cluster_verified', label: 'Spatio-temporal cluster verified (>70% confidence)' },
-                    { key: 'gauge_correlated', label: 'River gauge RG-02 flood risk correlated' },
-                    { key: 'structural_check', label: 'Structural integrity check for evacuation path' },
-                    { key: 'hazmat_cleared', label: 'Hazmat / power line subversion risk cleared' }
-                  ].map(item => (
-                    <label key={item.key} className="flex items-center space-x-2 text-slate-300 cursor-pointer hover:text-white">
-                      <input
-                        type="checkbox"
-                        checked={verificationChecklist[item.key] || false}
-                        onChange={(e) => setVerificationChecklist({
-                          ...verificationChecklist,
-                          [item.key]: e.target.checked
-                        })}
-                        className="accent-cyan-500 rounded cursor-pointer"
-                      />
-                      <span className={verificationChecklist[item.key] ? 'line-through text-slate-500' : ''}>
-                        {item.label}
+                {allocationResult.assignments.map((m, idx) => (
+                  <div key={idx} className="p-2.5 bg-slate-900/90 border border-slate-800 rounded-lg space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-cyan-300">{m.incidentTitle}</span>
+                      <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950 px-1.5 py-0.5 rounded">
+                        P{m.priority}
                       </span>
-                    </label>
+                    </div>
+                    <div className="text-[11px] text-slate-300 flex items-center justify-between">
+                      <span>Unit: <strong className="text-white">{m.teamCallsign}</strong></span>
+                      <span>ETA: ~{m.etaMinutes}m</span>
+                    </div>
+                    <div className="text-[10px] text-slate-500">
+                      Capability Matched: {m.capability.replace('_', ' ')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottlenecks & Unserved Queue */}
+              {allocationResult.unserved.length > 0 && (
+                <div className="p-3 bg-red-950/40 border border-red-800/80 rounded-lg space-y-2">
+                  <div className="flex items-center space-x-1.5 text-red-400 font-bold text-xs">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>CAPACITY BOTTLENECKS DETECTED</span>
+                  </div>
+                  {allocationResult.unserved.map((u, i) => (
+                    <div key={i} className="text-[11px] border-l-2 border-red-500 pl-2 py-0.5 text-slate-300">
+                      <div className="font-bold text-red-300">{u.incidentTitle} (Priority {u.priority})</div>
+                      <div className="text-[10px] text-red-200/80">{u.reason}</div>
+                    </div>
                   ))}
                 </div>
+              )}
+
+            </div>
+          )}
+
+          {/* TAB 2: SHELTERS & INTAKE DIVERSION (FEATURE 4) */}
+          {rightPanelTab === 'SHELTERS' && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 font-mono text-xs">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-200">
+                <span className="flex items-center space-x-1.5">
+                  <Building2 className="w-4 h-4 text-cyan-400" />
+                  <span>EVACUATION SHELTER INTAKE</span>
+                </span>
+                <span className="text-slate-400">2 HAVENS</span>
               </div>
 
-              {/* RESOURCE ALLOCATION STEPPERS */}
-              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-lg">
-                <div className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider mb-2.5">
-                  Tactical Asset Allocation
-                </div>
-                
-                {/* Boats Stepper */}
-                <div className="flex items-center justify-between py-1.5 border-b border-slate-800 text-xs font-mono">
-                  <span className="flex items-center space-x-1.5 text-slate-300">
-                    <Ship className="w-4 h-4 text-cyan-400" />
-                    <span>Amphibious Boats</span>
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, boats: Math.max(0, a.boats - 1) }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-6 text-center font-bold text-cyan-300">{allocations.boats}</span>
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, boats: a.boats + 1 }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
+              {shelters.map(s => {
+                const satPct = Math.round((s.occupancy / s.capacity) * 100);
+                const isDiverted = satPct >= 90;
 
-                {/* Ambulances Stepper */}
-                <div className="flex items-center justify-between py-1.5 border-b border-slate-800 text-xs font-mono">
-                  <span className="flex items-center space-x-1.5 text-slate-300">
-                    <Truck className="w-4 h-4 text-rose-400" />
-                    <span>High-Water Ambulances</span>
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, ambulances: Math.max(0, a.ambulances - 1) }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-6 text-center font-bold text-rose-300">{allocations.ambulances}</span>
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, ambulances: a.ambulances + 1 }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
+                return (
+                  <div 
+                    key={s.id}
+                    className={`p-3 rounded-lg border transition-all ${
+                      isDiverted 
+                        ? 'bg-red-950/40 border-red-800/80 shadow-[0_0_12px_rgba(239,68,68,0.2)]'
+                        : 'bg-slate-900/80 border-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-slate-200">{s.name}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        isDiverted ? 'bg-red-500 text-slate-950 animate-pulse' : 'bg-slate-800 text-cyan-300'
+                      }`}>
+                        {satPct}% SATURATED
+                      </span>
+                    </div>
 
-                {/* Rations Stepper */}
-                <div className="flex items-center justify-between py-1.5 text-xs font-mono">
-                  <span className="flex items-center space-x-1.5 text-slate-300">
-                    <Boxes className="w-4 h-4 text-amber-400" />
-                    <span>Rations (Kits)</span>
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, rations: Math.max(0, a.rations - 10) }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-6 text-center font-bold text-amber-300">{allocations.rations}</span>
-                    <button
-                      onClick={() => setAllocations(a => ({ ...a, rations: a.rations + 10 }))}
-                      className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                </div>
+                    <div className="text-[11px] text-slate-400 mb-2">
+                      Headcount: <strong className="text-white">{s.occupancy}</strong> / {s.capacity} beds
+                    </div>
 
-              </div>
+                    {/* Saturation Progress Bar */}
+                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
+                      <div 
+                        className={`h-full ${isDiverted ? 'bg-red-500' : satPct >= 80 ? 'bg-amber-400' : 'bg-emerald-400'}`}
+                        style={{ width: `${satPct}%` }}
+                      ></div>
+                    </div>
 
-              {/* ACTION: APPROVE DISPATCH PLAN & LOCK ROUTE BUTTON */}
-              <button
-                onClick={handleApproveDispatch}
-                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-extrabold text-xs tracking-wider rounded-lg shadow-lg flex items-center justify-center space-x-2 transition-all active:scale-98 font-mono border border-emerald-400"
-              >
-                <CheckCircle2 className="w-4 h-4 text-slate-950" />
-                <span>APPROVE DISPATCH PLAN & LOCK ROUTE</span>
-              </button>
-
-              {/* Merged Citizen Pings Log */}
-              <div className="bg-slate-950/80 border border-slate-800 p-2.5 rounded-lg">
-                <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider mb-1.5">
-                  Ingested Signal Audit Trail ({selectedIncident.pings.length} Pings)
-                </div>
-                <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                  {selectedIncident.pings.map((p, idx) => (
-                    <div key={idx} className="text-[11px] font-mono border-l-2 border-cyan-500 pl-2 py-0.5">
-                      <div className="text-[9px] text-cyan-400 flex items-center justify-between">
-                        <span>{p.source}</span>
-                        <span>{p.time}</span>
+                    {/* Auto-diversion trigger notice at >= 90% */}
+                    {isDiverted ? (
+                      <div className="p-2 bg-red-950/80 border border-red-700/80 rounded text-[10px] text-red-200 space-y-1">
+                        <div className="font-bold flex items-center space-x-1">
+                          <Ban className="w-3.5 h-3.5 text-red-400" />
+                          <span>INTAKE DIVERTED (THRESHOLD &ge; 90%)</span>
+                        </div>
+                        <p>All incoming evacuee convoys automatically redirected to City Indoor Arena Shelter (20% load).</p>
                       </div>
-                      <p className="text-slate-300">{p.text}</p>
+                    ) : (
+                      <div className="text-[10px] text-slate-500">
+                        Amenities: {s.amenities}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* TAB 3: AUTONOMOUS REPLANNING & AUDIT TRAIL (FEATURE 5 - JURY CHALLENGE CORE) */}
+          {rightPanelTab === 'REPLANNING' && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 font-mono text-xs">
+              
+              {/* Jury Challenge Status Header */}
+              <div className="bg-slate-900/90 border border-slate-800 p-3 rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-cyan-300 flex items-center space-x-1.5">
+                    <Compass className="w-4 h-4 text-cyan-400" />
+                    <span>JURY CHALLENGE EXECUTION MATRIX</span>
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-bold ${
+                    isSeveredTriggered ? 'bg-red-950 text-red-400 border border-red-800 animate-pulse' : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {isSeveredTriggered ? 'CORRIDOR SEVERED' : 'NORMAL MONITORING'}
+                  </span>
+                </div>
+
+                {!isSeveredTriggered ? (
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Click the red glowing <strong>[🚨 JURY CHALLENGE: SEVER CENTRAL BRIDGE]</strong> button in the top header bar to simulate flash flood road severance and trigger the autonomous replanner.
+                  </p>
+                ) : (
+                  <div className="p-2.5 bg-red-950/60 border border-red-800 rounded space-y-2">
+                    <div className="font-bold text-red-200 text-xs">
+                      ⚡ Severance Detected on Central River Viaduct!
+                    </div>
+                    <div className="text-[11px] text-slate-300">
+                      • Affected Unit: <strong className="text-white">NDRF Unit 1 (Zodiac Boat)</strong><br />
+                      • Target: <strong className="text-white">City Hospital ICU (45 Trapped)</strong><br />
+                      • Detour Selected: <strong className="text-amber-300">West Highland Elevated Bypass</strong><br />
+                      • Delay: <strong className="text-amber-400">+12 mins (+5.2 km)</strong>
+                    </div>
+
+                    {!isPlanApproved ? (
+                      <button
+                        onClick={handleApproveRevisedPlan}
+                        className="w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black rounded font-mono shadow border border-emerald-400 flex items-center justify-center space-x-1.5"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                        <span>APPROVE & EXECUTE REVISED PLAN (HITL)</span>
+                      </button>
+                    ) : (
+                      <div className="text-emerald-400 text-center font-bold text-xs py-1 border border-emerald-700/80 rounded bg-emerald-950/60">
+                        ✓ Revised Plan Committed by Incident Commander
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Immutable Mission Audit Trail */}
+              <div className="space-y-2">
+                <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                  <span>Mission Audit Trail (Immutable)</span>
+                  <span className="text-cyan-400">{auditLog.length} Events</span>
+                </div>
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {auditLog.map((log) => (
+                    <div key={log.id} className="p-2 bg-slate-950 border-l-2 border-cyan-500 text-[10px] space-y-0.5">
+                      <div className="text-cyan-400 font-bold flex items-center justify-between">
+                        <span>{log.id}</span>
+                        <span>{log.time}</span>
+                      </div>
+                      <p className="text-slate-300">{log.text}</p>
                     </div>
                   ))}
                 </div>
@@ -1241,115 +1548,205 @@ export default function App() {
             </div>
           )}
 
-          {/* Tab 2: Operator Dispatch Tracking */}
-          {rightPanelTab === 'OPERATOR DISPATCH' && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-xs">
-              <div className="text-slate-300 font-bold mb-2 flex items-center justify-between">
-                <span>ACTIVE FLEET TELEMETRY</span>
-                <span className="text-cyan-400">{convoys.length} UNITS</span>
-              </div>
-              {convoys.map(conv => (
-                <div key={conv.id} className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-lg space-y-1">
-                  <div className="flex items-center justify-between font-bold">
-                    <span className="text-cyan-300">{conv.callsign}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                      conv.rerouted ? 'bg-amber-950 text-amber-300 border border-amber-700' : 'bg-emerald-950 text-emerald-300'
-                    }`}>
-                      {conv.status}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 flex items-center justify-between">
-                    <span>ETA: {conv.eta_minutes} mins</span>
-                    <span>Route Progress: {conv.step_idx}/{conv.polyline?.length || 0}</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500">
-                    Target: {conv.target} • Assigned: {conv.assigned_incident_id || 'PATROL'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Tab 3: Bayesian & Dijkstra Explainability */}
-          {rightPanelTab === 'EXPLAINABILITY' && selectedIncident && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-xs">
-              <div className="text-cyan-400 font-bold flex items-center space-x-1.5 border-b border-slate-800 pb-1.5">
-                <Cpu className="w-4 h-4" />
-                <span>BAYESIAN DISASTER INTELLIGENCE TRACE</span>
-              </div>
-
-              <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 space-y-1.5 text-[11px]">
-                <div className="text-slate-400 font-bold">Mathematical Formulation:</div>
-                <div className="text-cyan-300 bg-slate-950 p-2 rounded border border-slate-800 font-mono text-[10px]">
-                  P(Crisis | E) = [Prior * LR] / [1 + (Prior * LR)]
-                </div>
-                <p className="text-slate-300">
-                  Prior Odds: <span className="text-cyan-300">0.35 / 0.65 = 0.538</span> (Baseline single call: 35%)
-                </p>
-                <p className="text-slate-300">
-                  Likelihood Ratio (Citizen SOS): <span className="text-cyan-300">LR = 3.40</span>
-                </p>
-                <p className="text-slate-300">
-                  Multi-Caller Verification: <span className="text-amber-400">{selectedIncident.cluster_count} calls within {selectedIncident.cluster_radius_m}m</span>
-                </p>
-                <div className="text-emerald-400 font-bold pt-1 border-t border-slate-800">
-                  Calculated Posterior: {selectedIncident.bayesian_confidence}% Confidence
-                </div>
-              </div>
-
-              <div className="text-cyan-400 font-bold flex items-center space-x-1.5 border-b border-slate-800 pb-1.5 pt-2">
-                <Navigation className="w-4 h-4" />
-                <span>DYNAMIC DIJKSTRA ROUTING ENGINE</span>
-              </div>
-
-              <div className="bg-slate-900/80 p-2.5 rounded border border-slate-800 space-y-1.5 text-[11px]">
-                <p className="text-slate-300">
-                  Network Graph: <strong className="text-white">12 Nodes, 14 Weighted Edges</strong>
-                </p>
-                <p className="text-slate-300">
-                  Bridge Status: <span className={roadSevered ? 'text-red-400 font-bold' : 'text-emerald-400'}>
-                    {roadSevered ? 'SEVERED (Weight = ∞)' : 'OPEN (Weight = 3.0m)'}
-                  </span>
-                </p>
-                {roadSevered && (
-                  <div className="bg-amber-950/40 border border-amber-800/80 p-2 rounded text-amber-200 text-[10px]">
-                    Automatic Path Invalidation: Dijkstra recalculated Convoy #3 path to Kathipara Urban Cloverleaf & 100 Feet Elevated Viaduct (Nodes W1 -&gt; W2 -&gt; W3). Added +14 minutes latency.
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Tab 4: Stockpile Resources */}
-          {rightPanelTab === 'RESOURCES' && (
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-xs">
-              <div className="text-slate-300 font-bold mb-2">REGIONAL RELIEF STOCKPILE</div>
-              {[
-                { name: 'Rescue Boats (Amphibious)', available: 8, total: 12, unit: 'Crafts' },
-                { name: 'High-Water 8x8 Supply Trucks', available: 5, total: 8, unit: 'Vehicles' },
-                { name: 'Paramedic Mobile Units', available: 11, total: 15, unit: 'Crews' },
-                { name: 'Clean Water & Rations', available: 840, total: 1200, unit: 'Kits' },
-                { name: 'Evacuation Shelter Capacity', available: 620, total: 1000, unit: 'Beds' }
-              ].map((res, i) => (
-                <div key={i} className="p-2.5 bg-slate-900/80 border border-slate-800 rounded-lg">
-                  <div className="flex items-center justify-between text-slate-200 font-bold mb-1">
-                    <span>{res.name}</span>
-                    <span className="text-cyan-400">{res.available}/{res.total} {res.unit}</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-cyan-500 rounded-full" 
-                      style={{ width: `${(res.available / res.total) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
         </aside>
 
       </div>
+
+      {/* =====================================================================
+          3. HITL PLAN DIFF COMPARISON MODAL (FEATURE 5 CORE)
+      ===================================================================== */}
+      {showReplanningDiffModal && (
+        <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0b1324] border-2 border-cyan-500/80 rounded-xl max-w-2xl w-full p-6 shadow-2xl space-y-5 font-mono text-xs">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <AlertOctagon className="w-6 h-6 text-amber-400" />
+                <h3 className="text-sm font-black text-white tracking-wide">
+                  AUTONOMOUS REPLANNING: BEFORE VS AFTER EXECUTION MATRIX
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowReplanningDiffModal(false)}
+                className="text-slate-400 hover:text-white text-base"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Explanatory Context */}
+            <div className="bg-slate-900/90 p-3 rounded-lg border border-slate-800 text-slate-300 space-y-1 text-[11px]">
+              <strong className="text-cyan-300">Hazard Event:</strong> Central River Viaduct impassable due to 2.4m Adyar River breach.
+              <p>The routing solver has verified an alternate dry corridor traversing the West Highland Bypass without intersecting active flood hazard polygons.</p>
+            </div>
+
+            {/* Side-by-Side Comparison Table */}
+            <div className="grid grid-cols-2 gap-4">
+              
+              {/* Original Plan (Infeasible) */}
+              <div className="p-3 bg-red-950/40 border border-red-800/80 rounded-lg space-y-2">
+                <div className="text-red-400 font-bold flex items-center justify-between border-b border-red-800 pb-1">
+                  <span>ORIGINAL PLAN (PLAN-DELTA-01)</span>
+                  <span className="text-[9px] bg-red-900 text-white px-1.5 rounded">INFEASIBLE</span>
+                </div>
+                <div className="space-y-1 text-[11px] text-slate-300">
+                  <p><strong>Corridor:</strong> Central River Viaduct</p>
+                  <p><strong>Travel Distance:</strong> 6.4 km</p>
+                  <p><strong>Estimated ETA:</strong> 14 mins</p>
+                  <p><strong>Status:</strong> <span className="text-red-400 font-bold">BLOCKED / SEVERED</span></p>
+                  <p><strong>Safety Score:</strong> 0% (Fatal Submersion)</p>
+                </div>
+              </div>
+
+              {/* Proposed Revised Plan (Feasible) */}
+              <div className="p-3 bg-emerald-950/40 border border-emerald-500/80 rounded-lg space-y-2">
+                <div className="text-emerald-400 font-bold flex items-center justify-between border-b border-emerald-700 pb-1">
+                  <span>REVISED PLAN (PLAN-DELTA-02)</span>
+                  <span className="text-[9px] bg-emerald-600 text-slate-950 px-1.5 rounded font-black">RECOMMENDED</span>
+                </div>
+                <div className="space-y-1 text-[11px] text-slate-300">
+                  <p><strong>Corridor:</strong> West Highland Bypass</p>
+                  <p><strong>Travel Distance:</strong> 11.6 km (+5.2 km)</p>
+                  <p><strong>Estimated ETA:</strong> 26 mins (+12 mins)</p>
+                  <p><strong>Status:</strong> <span className="text-emerald-400 font-bold">100% DRY / ACCESSIBLE</span></p>
+                  <p><strong>Safety Score:</strong> 98% (High Elevation)</p>
+                </div>
+              </div>
+
+            </div>
+
+            {/* HITL Commander Sign-Off Controls */}
+            <div className="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+              <button
+                onClick={() => setShowReplanningDiffModal(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-bold transition-all"
+              >
+                Manual Override / Defer
+              </button>
+              <button
+                onClick={handleApproveRevisedPlan}
+                className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded shadow-lg border border-emerald-300 transition-all active:scale-95 flex items-center space-x-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                <span>APPROVE & EXECUTE REVISED PLAN</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+          4. INJECT REPORT MODAL (FEATURE 1 LIVE DEMONSTRATION)
+      ===================================================================== */}
+      {showInjectModal && (
+        <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <form 
+            onSubmit={handleInjectReport}
+            className="bg-[#0b1324] border border-purple-500/80 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 font-mono text-xs"
+          >
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span className="font-bold text-purple-300 text-sm flex items-center space-x-1.5">
+                <Plus className="w-4 h-4" />
+                <span>INJECT CITIZEN / FIELD EVIDENCE REPORT</span>
+              </span>
+              <button 
+                type="button" 
+                onClick={() => setShowInjectModal(false)} 
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Target Incident Selection */}
+            <div>
+              <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Target Sector / Incident</label>
+              <select
+                value={injectForm.incidentId}
+                onChange={(e) => setInjectForm({ ...injectForm, incidentId: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200"
+              >
+                {incidents.map(inc => (
+                  <option key={inc.id} value={inc.id}>{inc.id} - {inc.title}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Source Category Tier */}
+            <div>
+              <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Source Category (Trust Tier)</label>
+              <select
+                value={injectForm.source}
+                onChange={(e) => setInjectForm({ ...injectForm, source: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200"
+              >
+                <option value="GOVT_FEED">Tier 1: Government Control Room Feed (Trust: 96%)</option>
+                <option value="FIELD_OFFICER">Tier 2: Field Officer / SDRF Scout (Trust: 90%)</option>
+                <option value="IOT_SENSOR">Tier 3: River Telemetry IoT Gauge (Trust: 86%)</option>
+                <option value="CITIZEN_CROWDSOURCE">Tier 4: Citizen Crowdsourced Mobile SOS (Trust: 42%)</option>
+              </select>
+            </div>
+
+            {/* Reporter Name */}
+            <div>
+              <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Reporter Callsign / Identification</label>
+              <input
+                type="text"
+                value={injectForm.reporterName}
+                onChange={(e) => setInjectForm({ ...injectForm, reporterName: e.target.value })}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200"
+                required
+              />
+            </div>
+
+            {/* Report Content */}
+            <div>
+              <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Incident Report Details</label>
+              <textarea
+                value={injectForm.text}
+                onChange={(e) => setInjectForm({ ...injectForm, text: e.target.value })}
+                rows={3}
+                className="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-slate-200 text-xs"
+                required
+              />
+            </div>
+
+            {/* Conflicting Report Toggle */}
+            <div className="flex items-center space-x-2 pt-1">
+              <input
+                type="checkbox"
+                id="conflictCheck"
+                checked={injectForm.isConflicting}
+                onChange={(e) => setInjectForm({ ...injectForm, isConflicting: e.target.checked })}
+                className="accent-red-500 rounded cursor-pointer"
+              />
+              <label htmlFor="conflictCheck" className="text-red-300 font-bold cursor-pointer text-[11px]">
+                Simulate Contradictory / Conflicting Report (-25% Penalty)
+              </label>
+            </div>
+
+            {/* Submit */}
+            <div className="pt-2 flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={() => setShowInjectModal(false)}
+                className="px-3 py-1.5 bg-slate-800 text-slate-300 rounded font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded shadow transition-all"
+              >
+                Ingest & Recalculate
+              </button>
+            </div>
+
+          </form>
+        </div>
+      )}
 
     </div>
   );
