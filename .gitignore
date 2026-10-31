@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+node_modules/
+dist/
+*.db
+*.sqlite*
+frontend/node_modules/
+EvacRoute/.venv/
+EvacRoute/.git/

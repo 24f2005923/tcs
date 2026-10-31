@@ -1,0 +1,198 @@
+accident_id,timestamp,latitude,longitude,road_name,accident_severity,weather_condition,road_surface,time_of_day,vehicle_types_involved,casualty_count,traffic_density,risk_level,is_blackspot
+CHN-ACC-1176,2025-09-14 11:00:00,13.081597,80.275114,Poonamallee High Road - Ripon HQ Approach,Non-Injury Collision,Flooded Surface,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1062,2025-04-23 18:00:00,13.005926,80.191907,Kathipara Urban Cloverleaf Junction,Non-Injury Collision,Rainy,Wet Asphalt,Night (22:00-04:00),Car + Heavy Truck,1,LOW,HIGH,1
+CHN-ACC-1016,2025-06-08 21:00:00,13.019181,80.221899,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Cloudy,Normal Dry,Afternoon (12:00-16:00),Two-Wheeler + Bus,2,HIGH,HIGH,1
+CHN-ACC-1014,2025-08-13 06:00:00,13.017326,80.222545,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Clear,Wet Asphalt,Night (22:00-04:00),Container Lorry,2,HIGH,HIGH,1
+CHN-ACC-1175,2025-07-02 11:00:00,13.082169,80.275564,Poonamallee High Road - Ripon HQ Approach,Grievous,Heavy Rain,Waterlogged,Peak Morning (08:00-11:00),Container Lorry,2,HIGH_CONGESTION,LOW,0
+CHN-ACC-1192,2025-03-26 01:00:00,13.032239,80.210083,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Heavy Rain,Waterlogged,Night (22:00-04:00),Container Lorry,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1115,2026-10-10 16:00:00,12.982545,80.218475,Velachery Main Road & Bypass Junction,Non-Injury Collision,Heavy Rain,Submerged Edge,Afternoon (12:00-16:00),Container Lorry,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1080,2025-07-05 11:00:00,13.020245,80.198104,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Heavy Rain,Submerged Edge,Peak Morning (08:00-11:00),Two-Wheeler Skid,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1136,2025-09-11 21:00:00,13.005009,80.256936,OMR Rajiv Gandhi Salai - Madhya Kailash,Non-Injury Collision,Clear,Wet Asphalt,Peak Evening (17:00-21:00),Two-Wheeler + Bus,1,MEDIUM,MEDIUM,0
+CHN-ACC-1167,2025-06-23 06:00:00,13.019151,80.18731,Mount-Poonamallee Road - Ramapuram / MIOT,Minor Injury,Clear,Normal Dry,Night (22:00-04:00),Ambulance + Auto,2,MEDIUM,HIGH,1
+CHN-ACC-1125,2025-02-14 00:00:00,12.9826,80.217868,Velachery Main Road & Bypass Junction,Fatal,Clear,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler + Bus,2,HIGH,HIGH,1
+CHN-ACC-1090,2025-11-06 22:00:00,13.005809,80.201728,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Rainy,Wet Asphalt,Afternoon (12:00-16:00),Container Lorry,0,LOW,HIGH,1
+CHN-ACC-1015,2025-04-26 07:00:00,13.01883,80.221569,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Clear,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,2,MEDIUM,HIGH,1
+CHN-ACC-1180,2025-12-17 05:00:00,13.081899,80.275756,Poonamallee High Road - Ripon HQ Approach,Minor Injury,Clear,Submerged Edge,Afternoon (12:00-16:00),Car + Heavy Truck,1,LOW,LOW,0
+CHN-ACC-1123,2026-04-11 05:00:00,12.981606,80.21692,Velachery Main Road & Bypass Junction,Fatal,Cloudy,Wet Asphalt,Peak Morning (08:00-11:00),Two-Wheeler Skid,1,LOW,HIGH,1
+CHN-ACC-1078,2026-09-07 20:00:00,13.020644,80.199948,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Flooded Surface,Waterlogged,Peak Morning (08:00-11:00),Container Lorry,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1049,2025-01-17 13:00:00,13.007823,80.192565,Kathipara Urban Cloverleaf Junction,Minor Injury,Clear,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler + Bus,1,LOW,HIGH,1
+CHN-ACC-1188,2026-10-13 15:00:00,13.032339,80.209779,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Flooded Surface,Potholed/Debris,Night (22:00-04:00),Two-Wheeler + Bus,1,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1047,2025-12-23 20:00:00,13.006763,80.193458,Kathipara Urban Cloverleaf Junction,Fatal,Heavy Rain,Potholed/Debris,Afternoon (12:00-16:00),Two-Wheeler Skid,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1065,2025-12-20 06:00:00,13.020637,80.19787,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Clear,Potholed/Debris,Peak Morning (08:00-11:00),Ambulance + Auto,2,HIGH,MEDIUM,0
+CHN-ACC-1143,2026-08-31 11:00:00,13.006459,80.25603,OMR Rajiv Gandhi Salai - Madhya Kailash,Non-Injury Collision,Cloudy,Wet Asphalt,Peak Morning (08:00-11:00),Ambulance + Auto,0,LOW,MEDIUM,0
+CHN-ACC-1038,2025-10-21 18:00:00,13.007435,80.194013,Kathipara Urban Cloverleaf Junction,Non-Injury Collision,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1166,2025-12-16 13:00:00,13.017205,80.187955,Mount-Poonamallee Road - Ramapuram / MIOT,Minor Injury,Rainy,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,2,HIGH,HIGH,1
+CHN-ACC-1035,2026-10-09 07:00:00,13.007724,80.19359,Kathipara Urban Cloverleaf Junction,Fatal,Rainy,Submerged Edge,Peak Morning (08:00-11:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1194,2025-09-06 13:00:00,13.032633,80.209101,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Non-Injury Collision,Heavy Rain,Submerged Edge,Peak Evening (17:00-21:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1005,2026-08-02 21:00:00,13.017961,80.221166,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Submerged Edge,Afternoon (12:00-16:00),Car + Heavy Truck,0,LOW,HIGH,1
+CHN-ACC-1022,2026-09-06 04:00:00,13.017722,80.221336,Anna Salai - Saidapet Maraimalai Adigal Bridge,Fatal,Heavy Rain,Potholed/Debris,Night (22:00-04:00),Car + Heavy Truck,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1112,2026-07-14 21:00:00,12.982622,80.217347,Velachery Main Road & Bypass Junction,Non-Injury Collision,Rainy,Normal Dry,Night (22:00-04:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1052,2025-01-14 18:00:00,13.006557,80.194064,Kathipara Urban Cloverleaf Junction,Grievous,Heavy Rain,Potholed/Debris,Peak Evening (17:00-21:00),Container Lorry,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1119,2026-10-03 10:00:00,12.980336,80.218757,Velachery Main Road & Bypass Junction,Minor Injury,Cloudy,Wet Asphalt,Peak Evening (17:00-21:00),Two-Wheeler Skid,0,LOW,HIGH,1
+CHN-ACC-1117,2025-10-17 16:00:00,12.981228,80.217945,Velachery Main Road & Bypass Junction,Grievous,Heavy Rain,Waterlogged,Night (22:00-04:00),Car + Heavy Truck,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1128,2026-07-23 04:00:00,12.980795,80.218431,Velachery Main Road & Bypass Junction,Grievous,Flooded Surface,Submerged Edge,Afternoon (12:00-16:00),Car + Heavy Truck,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1053,2026-03-08 19:00:00,13.007551,80.193947,Kathipara Urban Cloverleaf Junction,Minor Injury,Rainy,Normal Dry,Afternoon (12:00-16:00),Car + Heavy Truck,2,MEDIUM,HIGH,1
+CHN-ACC-1126,2026-04-12 18:00:00,12.980706,80.218804,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Waterlogged,Peak Evening (17:00-21:00),Container Lorry,1,LOW,HIGH,1
+CHN-ACC-1104,2025-11-11 18:00:00,12.981427,80.218607,Velachery Main Road & Bypass Junction,Fatal,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Container Lorry,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1173,2025-01-08 01:00:00,13.017499,80.186273,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Rainy,Potholed/Debris,Afternoon (12:00-16:00),Car + Heavy Truck,0,LOW,HIGH,1
+CHN-ACC-1098,2026-09-21 00:00:00,13.007899,80.201301,Guindy Race Course / Five Furlong Road Junction,Fatal,Heavy Rain,Waterlogged,Peak Morning (08:00-11:00),Container Lorry,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1158,2025-04-07 08:00:00,13.016995,80.186207,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Cloudy,Normal Dry,Night (22:00-04:00),Two-Wheeler + Bus,2,HIGH,HIGH,1
+CHN-ACC-1073,2025-08-16 11:00:00,13.02057,80.198672,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Minor Injury,Cloudy,Wet Asphalt,Afternoon (12:00-16:00),Container Lorry,1,LOW,MEDIUM,0
+CHN-ACC-1084,2026-06-07 04:00:00,13.007078,80.201742,Guindy Race Course / Five Furlong Road Junction,Fatal,Heavy Rain,Potholed/Debris,Night (22:00-04:00),Container Lorry,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1140,2026-02-15 00:00:00,13.006227,80.255826,OMR Rajiv Gandhi Salai - Madhya Kailash,Non-Injury Collision,Mist/Fog,Normal Dry,Peak Morning (08:00-11:00),Two-Wheeler Skid,0,LOW,MEDIUM,0
+CHN-ACC-1109,2025-06-12 13:00:00,12.98031,80.217979,Velachery Main Road & Bypass Junction,Grievous,Heavy Rain,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler + Bus,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1151,2026-08-03 03:00:00,13.033508,80.278043,Santhome High Road - Foreshore Estate Link,Non-Injury Collision,Rainy,Waterlogged,Night (22:00-04:00),Ambulance + Auto,0,MEDIUM,LOW,0
+CHN-ACC-1103,2025-04-17 07:00:00,13.007427,80.202582,Guindy Race Course / Five Furlong Road Junction,Grievous,Rainy,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,0,LOW,HIGH,1
+CHN-ACC-1006,2025-11-23 06:00:00,13.019565,80.222525,Anna Salai - Saidapet Maraimalai Adigal Bridge,Grievous,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Container Lorry,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1172,2025-12-23 07:00:00,13.018576,80.186072,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Cloudy,Waterlogged,Night (22:00-04:00),Car + Heavy Truck,0,HIGH,HIGH,1
+CHN-ACC-1120,2025-10-09 18:00:00,12.981878,80.219124,Velachery Main Road & Bypass Junction,Fatal,Clear,Waterlogged,Peak Morning (08:00-11:00),Car + Heavy Truck,2,LOW,HIGH,1
+CHN-ACC-1124,2026-05-27 12:00:00,12.98178,80.217716,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Normal Dry,Peak Evening (17:00-21:00),Two-Wheeler + Bus,1,LOW,HIGH,1
+CHN-ACC-1164,2025-02-21 09:00:00,13.01772,80.185925,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Rainy,Waterlogged,Peak Morning (08:00-11:00),Two-Wheeler Skid,2,LOW,HIGH,1
+CHN-ACC-1095,2025-09-17 03:00:00,13.00783,80.202647,Guindy Race Course / Five Furlong Road Junction,Fatal,Clear,Normal Dry,Night (22:00-04:00),Ambulance + Auto,1,MEDIUM,HIGH,1
+CHN-ACC-1041,2025-11-18 02:00:00,13.007245,80.193991,Kathipara Urban Cloverleaf Junction,Grievous,Flooded Surface,Submerged Edge,Peak Morning (08:00-11:00),Container Lorry,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1185,2026-03-26 10:00:00,13.033137,80.21018,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Non-Injury Collision,Rainy,Normal Dry,Peak Evening (17:00-21:00),Car + Heavy Truck,0,HIGH,MEDIUM,0
+CHN-ACC-1157,2025-08-27 01:00:00,13.017244,80.18741,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Rainy,Wet Asphalt,Afternoon (12:00-16:00),Car + Heavy Truck,2,LOW,HIGH,1
+CHN-ACC-1148,2025-04-25 08:00:00,13.033072,80.276889,Santhome High Road - Foreshore Estate Link,Non-Injury Collision,Flooded Surface,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1142,2025-02-20 20:00:00,13.005865,80.257091,OMR Rajiv Gandhi Salai - Madhya Kailash,Grievous,Flooded Surface,Potholed/Debris,Afternoon (12:00-16:00),Car + Heavy Truck,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1155,2025-06-26 11:00:00,13.018319,80.186311,Mount-Poonamallee Road - Ramapuram / MIOT,Fatal,Heavy Rain,Submerged Edge,Peak Evening (17:00-21:00),Two-Wheeler Skid,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1012,2026-02-27 07:00:00,13.019187,80.22196,Anna Salai - Saidapet Maraimalai Adigal Bridge,Fatal,Rainy,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,2,MEDIUM,HIGH,1
+CHN-ACC-1017,2026-05-26 18:00:00,13.01782,80.221873,Anna Salai - Saidapet Maraimalai Adigal Bridge,Grievous,Flooded Surface,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1135,2025-06-11 15:00:00,13.006299,80.257824,OMR Rajiv Gandhi Salai - Madhya Kailash,Fatal,Flooded Surface,Submerged Edge,Peak Morning (08:00-11:00),Two-Wheeler Skid,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1171,2026-08-18 06:00:00,13.017147,80.18642,Mount-Poonamallee Road - Ramapuram / MIOT,Minor Injury,Flooded Surface,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler Skid,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1102,2025-12-27 06:00:00,13.006395,80.203293,Guindy Race Course / Five Furlong Road Junction,Grievous,Rainy,Potholed/Debris,Peak Evening (17:00-21:00),Container Lorry,2,LOW,HIGH,1
+CHN-ACC-1008,2026-09-28 05:00:00,13.019664,80.222236,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Heavy Rain,Potholed/Debris,Peak Evening (17:00-21:00),Car + Heavy Truck,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1118,2025-09-29 02:00:00,12.980386,80.219199,Velachery Main Road & Bypass Junction,Grievous,Rainy,Submerged Edge,Peak Evening (17:00-21:00),Car + Heavy Truck,2,HIGH,HIGH,1
+CHN-ACC-1048,2026-04-11 16:00:00,13.005947,80.193888,Kathipara Urban Cloverleaf Junction,Grievous,Flooded Surface,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler + Bus,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1153,2026-09-10 19:00:00,13.017051,80.186444,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Flooded Surface,Potholed/Debris,Peak Evening (17:00-21:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1196,2025-11-09 06:00:00,13.032252,80.209702,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Flooded Surface,Waterlogged,Peak Morning (08:00-11:00),Ambulance + Auto,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1030,2026-09-13 21:00:00,13.006598,80.192068,Kathipara Urban Cloverleaf Junction,Fatal,Cloudy,Submerged Edge,Peak Morning (08:00-11:00),Container Lorry,2,MEDIUM,HIGH,1
+CHN-ACC-1028,2025-01-08 15:00:00,13.017967,80.222818,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Cloudy,Normal Dry,Night (22:00-04:00),Container Lorry,2,MEDIUM,HIGH,1
+CHN-ACC-1184,2026-01-01 09:00:00,13.031999,80.209447,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Minor Injury,Rainy,Waterlogged,Peak Evening (17:00-21:00),Car + Heavy Truck,0,LOW,MEDIUM,0
+CHN-ACC-1024,2025-07-09 17:00:00,13.017489,80.2214,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Normal Dry,Night (22:00-04:00),Two-Wheeler + Bus,0,MEDIUM,HIGH,1
+CHN-ACC-1101,2026-06-08 04:00:00,13.006263,80.203152,Guindy Race Course / Five Furlong Road Junction,Grievous,Rainy,Wet Asphalt,Peak Evening (17:00-21:00),Car + Heavy Truck,1,MEDIUM,HIGH,1
+CHN-ACC-1031,2025-09-27 19:00:00,13.006079,80.19193,Kathipara Urban Cloverleaf Junction,Minor Injury,Clear,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,2,HIGH,HIGH,1
+CHN-ACC-1163,2025-12-08 01:00:00,13.017182,80.186984,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Flooded Surface,Potholed/Debris,Night (22:00-04:00),Ambulance + Auto,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1068,2025-10-25 23:00:00,13.021149,80.199067,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Cloudy,Waterlogged,Night (22:00-04:00),Ambulance + Auto,1,MEDIUM,MEDIUM,0
+CHN-ACC-1187,2026-01-16 10:00:00,13.032046,80.209177,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Rainy,Submerged Edge,Night (22:00-04:00),Two-Wheeler Skid,2,HIGH,MEDIUM,0
+CHN-ACC-1091,2025-06-24 03:00:00,13.006135,80.202957,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Flooded Surface,Potholed/Debris,Night (22:00-04:00),Ambulance + Auto,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1145,2025-02-15 05:00:00,13.032632,80.278964,Santhome High Road - Foreshore Estate Link,Grievous,Cloudy,Waterlogged,Afternoon (12:00-16:00),Car + Heavy Truck,0,MEDIUM,LOW,0
+CHN-ACC-1168,2025-09-25 17:00:00,13.019158,80.186785,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Ambulance + Auto,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1100,2026-05-16 05:00:00,13.006928,80.201689,Guindy Race Course / Five Furlong Road Junction,Non-Injury Collision,Cloudy,Wet Asphalt,Night (22:00-04:00),Container Lorry,0,HIGH,HIGH,1
+CHN-ACC-1170,2025-06-04 08:00:00,13.017516,80.187778,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Flooded Surface,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler Skid,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1046,2025-01-05 02:00:00,13.007437,80.191974,Kathipara Urban Cloverleaf Junction,Grievous,Heavy Rain,Waterlogged,Night (22:00-04:00),Ambulance + Auto,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1011,2026-03-31 10:00:00,13.018733,80.221206,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Normal Dry,Peak Morning (08:00-11:00),Two-Wheeler + Bus,2,HIGH,HIGH,1
+CHN-ACC-1133,2025-09-29 00:00:00,13.005679,80.256352,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Rainy,Potholed/Debris,Afternoon (12:00-16:00),Ambulance + Auto,1,MEDIUM,MEDIUM,0
+CHN-ACC-1107,2026-06-12 03:00:00,12.981034,80.218218,Velachery Main Road & Bypass Junction,Minor Injury,Cloudy,Potholed/Debris,Peak Evening (17:00-21:00),Two-Wheeler Skid,0,MEDIUM,HIGH,1
+CHN-ACC-1156,2026-01-25 09:00:00,13.017389,80.186144,Mount-Poonamallee Road - Ramapuram / MIOT,Minor Injury,Cloudy,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler Skid,0,HIGH,HIGH,1
+CHN-ACC-1010,2025-02-07 08:00:00,13.018842,80.222397,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Clear,Wet Asphalt,Afternoon (12:00-16:00),Two-Wheeler Skid,1,HIGH,HIGH,1
+CHN-ACC-1001,2025-03-30 15:00:00,13.017303,80.221561,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Normal Dry,Peak Evening (17:00-21:00),Car + Heavy Truck,1,HIGH,HIGH,1
+CHN-ACC-1129,2026-06-11 23:00:00,13.007108,80.258088,OMR Rajiv Gandhi Salai - Madhya Kailash,Grievous,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler Skid,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1076,2025-12-07 20:00:00,13.021121,80.199836,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Container Lorry,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1018,2025-06-11 16:00:00,13.019117,80.22104,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Mist/Fog,Waterlogged,Night (22:00-04:00),Two-Wheeler + Bus,0,HIGH,HIGH,1
+CHN-ACC-1079,2026-05-31 04:00:00,13.019092,80.199718,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Heavy Rain,Potholed/Debris,Peak Morning (08:00-11:00),Two-Wheeler + Bus,1,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1146,2025-08-01 17:00:00,13.034178,80.277956,Santhome High Road - Foreshore Estate Link,Minor Injury,Flooded Surface,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler Skid,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1059,2025-11-22 20:00:00,13.007546,80.194021,Kathipara Urban Cloverleaf Junction,Non-Injury Collision,Rainy,Potholed/Debris,Peak Evening (17:00-21:00),Two-Wheeler Skid,1,MEDIUM,HIGH,1
+CHN-ACC-1097,2025-08-02 01:00:00,13.007244,80.202437,Guindy Race Course / Five Furlong Road Junction,Grievous,Rainy,Potholed/Debris,Peak Evening (17:00-21:00),Ambulance + Auto,1,MEDIUM,HIGH,1
+CHN-ACC-1050,2025-03-17 17:00:00,13.007372,80.193506,Kathipara Urban Cloverleaf Junction,Grievous,Rainy,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,1,LOW,HIGH,1
+CHN-ACC-1181,2026-03-18 04:00:00,13.081773,80.27484,Poonamallee High Road - Ripon HQ Approach,Grievous,Flooded Surface,Waterlogged,Peak Morning (08:00-11:00),Two-Wheeler Skid,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1096,2025-03-07 07:00:00,13.006939,80.202868,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Rainy,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler + Bus,1,LOW,HIGH,1
+CHN-ACC-1193,2025-09-11 01:00:00,13.033809,80.210065,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Rainy,Wet Asphalt,Night (22:00-04:00),Car + Heavy Truck,0,MEDIUM,MEDIUM,0
+CHN-ACC-1070,2026-10-02 23:00:00,13.020521,80.198569,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Heavy Rain,Potholed/Debris,Night (22:00-04:00),Ambulance + Auto,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1056,2025-08-22 06:00:00,13.0063,80.192505,Kathipara Urban Cloverleaf Junction,Non-Injury Collision,Rainy,Waterlogged,Afternoon (12:00-16:00),Car + Heavy Truck,2,MEDIUM,HIGH,1
+CHN-ACC-1087,2025-09-29 01:00:00,13.007402,80.202874,Guindy Race Course / Five Furlong Road Junction,Non-Injury Collision,Rainy,Waterlogged,Peak Morning (08:00-11:00),Two-Wheeler + Bus,2,MEDIUM,HIGH,1
+CHN-ACC-1114,2026-05-27 05:00:00,12.980867,80.218267,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Wet Asphalt,Peak Evening (17:00-21:00),Two-Wheeler + Bus,1,MEDIUM,HIGH,1
+CHN-ACC-1069,2025-05-15 15:00:00,13.021088,80.199016,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Minor Injury,Cloudy,Wet Asphalt,Night (22:00-04:00),Car + Heavy Truck,0,LOW,MEDIUM,0
+CHN-ACC-1061,2026-02-16 22:00:00,13.006282,80.193055,Kathipara Urban Cloverleaf Junction,Grievous,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Car + Heavy Truck,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1141,2026-06-01 18:00:00,13.005812,80.257675,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Rainy,Submerged Edge,Peak Evening (17:00-21:00),Two-Wheeler + Bus,0,MEDIUM,MEDIUM,0
+CHN-ACC-1037,2026-07-16 15:00:00,13.00632,80.193722,Kathipara Urban Cloverleaf Junction,Fatal,Flooded Surface,Potholed/Debris,Peak Morning (08:00-11:00),Ambulance + Auto,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1039,2026-02-05 12:00:00,13.00754,80.192335,Kathipara Urban Cloverleaf Junction,Fatal,Flooded Surface,Submerged Edge,Peak Evening (17:00-21:00),Two-Wheeler Skid,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1108,2025-02-05 00:00:00,12.980312,80.219115,Velachery Main Road & Bypass Junction,Fatal,Heavy Rain,Potholed/Debris,Afternoon (12:00-16:00),Two-Wheeler + Bus,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1197,2026-07-03 03:00:00,13.03374,80.210169,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Minor Injury,Rainy,Potholed/Debris,Peak Morning (08:00-11:00),Ambulance + Auto,0,LOW,MEDIUM,0
+CHN-ACC-1179,2025-01-09 23:00:00,13.082885,80.275463,Poonamallee High Road - Ripon HQ Approach,Fatal,Clear,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler Skid,1,MEDIUM,LOW,0
+CHN-ACC-1149,2026-08-30 06:00:00,13.033675,80.278881,Santhome High Road - Foreshore Estate Link,Non-Injury Collision,Rainy,Potholed/Debris,Afternoon (12:00-16:00),Car + Heavy Truck,1,LOW,LOW,0
+CHN-ACC-1160,2025-09-30 22:00:00,13.017595,80.18776,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Heavy Rain,Waterlogged,Night (22:00-04:00),Ambulance + Auto,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1025,2026-09-22 23:00:00,13.018324,80.220821,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Cloudy,Normal Dry,Peak Evening (17:00-21:00),Ambulance + Auto,2,HIGH,HIGH,1
+CHN-ACC-1023,2025-01-17 03:00:00,13.018754,80.222774,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler Skid,0,HIGH,HIGH,1
+CHN-ACC-1110,2026-07-17 17:00:00,12.982658,80.217619,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Waterlogged,Peak Morning (08:00-11:00),Container Lorry,0,HIGH,HIGH,1
+CHN-ACC-1058,2026-03-22 16:00:00,13.008122,80.192762,Kathipara Urban Cloverleaf Junction,Fatal,Heavy Rain,Waterlogged,Peak Morning (08:00-11:00),Car + Heavy Truck,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1152,2026-03-14 00:00:00,13.032248,80.277854,Santhome High Road - Foreshore Estate Link,Grievous,Heavy Rain,Waterlogged,Peak Morning (08:00-11:00),Ambulance + Auto,3,HIGH_CONGESTION,LOW,0
+CHN-ACC-1034,2025-08-20 01:00:00,13.007157,80.192672,Kathipara Urban Cloverleaf Junction,Grievous,Clear,Waterlogged,Night (22:00-04:00),Two-Wheeler Skid,1,HIGH,HIGH,1
+CHN-ACC-1093,2026-02-08 03:00:00,13.006789,80.201572,Guindy Race Course / Five Furlong Road Junction,Non-Injury Collision,Cloudy,Waterlogged,Peak Evening (17:00-21:00),Ambulance + Auto,2,HIGH,HIGH,1
+CHN-ACC-1161,2026-06-18 01:00:00,13.0176,80.186308,Mount-Poonamallee Road - Ramapuram / MIOT,Grievous,Flooded Surface,Potholed/Debris,Peak Morning (08:00-11:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1072,2026-09-29 18:00:00,13.019141,80.199249,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Non-Injury Collision,Heavy Rain,Potholed/Debris,Night (22:00-04:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1099,2025-12-22 02:00:00,13.00571,80.203092,Guindy Race Course / Five Furlong Road Junction,Non-Injury Collision,Cloudy,Waterlogged,Peak Morning (08:00-11:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1134,2026-04-12 04:00:00,13.006301,80.256293,OMR Rajiv Gandhi Salai - Madhya Kailash,Grievous,Cloudy,Wet Asphalt,Peak Evening (17:00-21:00),Two-Wheeler + Bus,0,HIGH,MEDIUM,0
+CHN-ACC-1064,2026-05-31 20:00:00,13.018843,80.198374,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Cloudy,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler Skid,0,LOW,MEDIUM,0
+CHN-ACC-1189,2025-09-25 20:00:00,13.031877,80.21034,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Flooded Surface,Submerged Edge,Night (22:00-04:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1121,2026-10-01 21:00:00,12.981997,80.21838,Velachery Main Road & Bypass Junction,Fatal,Rainy,Potholed/Debris,Afternoon (12:00-16:00),Ambulance + Auto,2,MEDIUM,HIGH,1
+CHN-ACC-1106,2026-10-07 13:00:00,12.981864,80.21871,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Wet Asphalt,Peak Morning (08:00-11:00),Container Lorry,2,HIGH,HIGH,1
+CHN-ACC-1122,2026-07-09 12:00:00,12.980301,80.218806,Velachery Main Road & Bypass Junction,Non-Injury Collision,Rainy,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,1,LOW,HIGH,1
+CHN-ACC-1020,2025-02-19 08:00:00,13.018888,80.221314,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Flooded Surface,Potholed/Debris,Afternoon (12:00-16:00),Ambulance + Auto,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1105,2025-05-10 17:00:00,12.981275,80.216987,Velachery Main Road & Bypass Junction,Minor Injury,Rainy,Normal Dry,Peak Morning (08:00-11:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1032,2025-06-16 12:00:00,13.007242,80.192675,Kathipara Urban Cloverleaf Junction,Fatal,Rainy,Normal Dry,Peak Evening (17:00-21:00),Car + Heavy Truck,1,MEDIUM,HIGH,1
+CHN-ACC-1092,2026-03-20 03:00:00,13.007582,80.203647,Guindy Race Course / Five Furlong Road Junction,Fatal,Flooded Surface,Waterlogged,Peak Evening (17:00-21:00),Container Lorry,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1132,2026-06-10 02:00:00,13.005763,80.257518,OMR Rajiv Gandhi Salai - Madhya Kailash,Non-Injury Collision,Rainy,Potholed/Debris,Peak Morning (08:00-11:00),Two-Wheeler + Bus,0,MEDIUM,MEDIUM,0
+CHN-ACC-1183,2026-09-22 11:00:00,13.033671,80.211115,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Minor Injury,Heavy Rain,Potholed/Debris,Afternoon (12:00-16:00),Ambulance + Auto,2,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1013,2025-03-17 18:00:00,13.018949,80.221508,Anna Salai - Saidapet Maraimalai Adigal Bridge,Fatal,Cloudy,Normal Dry,Peak Evening (17:00-21:00),Two-Wheeler + Bus,1,MEDIUM,HIGH,1
+CHN-ACC-1162,2025-09-09 23:00:00,13.018925,80.186487,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Rainy,Waterlogged,Afternoon (12:00-16:00),Ambulance + Auto,2,HIGH,HIGH,1
+CHN-ACC-1138,2026-08-03 09:00:00,13.006958,80.258072,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Clear,Waterlogged,Peak Evening (17:00-21:00),Car + Heavy Truck,1,MEDIUM,MEDIUM,0
+CHN-ACC-1029,2025-06-19 17:00:00,13.00732,80.192008,Kathipara Urban Cloverleaf Junction,Minor Injury,Cloudy,Wet Asphalt,Afternoon (12:00-16:00),Two-Wheeler + Bus,2,HIGH,HIGH,1
+CHN-ACC-1026,2025-02-01 08:00:00,13.018605,80.222377,Anna Salai - Saidapet Maraimalai Adigal Bridge,Minor Injury,Rainy,Submerged Edge,Peak Morning (08:00-11:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1177,2026-04-26 17:00:00,13.082413,80.275484,Poonamallee High Road - Ripon HQ Approach,Non-Injury Collision,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Ambulance + Auto,2,HIGH_CONGESTION,LOW,0
+CHN-ACC-1027,2025-05-31 07:00:00,13.0176,80.222891,Anna Salai - Saidapet Maraimalai Adigal Bridge,Grievous,Rainy,Normal Dry,Peak Morning (08:00-11:00),Ambulance + Auto,1,MEDIUM,HIGH,1
+CHN-ACC-1116,2025-11-17 13:00:00,12.981897,80.216938,Velachery Main Road & Bypass Junction,Minor Injury,Mist/Fog,Submerged Edge,Peak Evening (17:00-21:00),Container Lorry,2,LOW,HIGH,1
+CHN-ACC-1002,2025-09-27 19:00:00,13.018945,80.222025,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Rainy,Potholed/Debris,Peak Morning (08:00-11:00),Two-Wheeler + Bus,0,LOW,HIGH,1
+CHN-ACC-1085,2025-01-28 00:00:00,13.005808,80.202867,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Rainy,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler Skid,0,HIGH,HIGH,1
+CHN-ACC-1159,2025-11-27 19:00:00,13.018995,80.186685,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Rainy,Wet Asphalt,Peak Morning (08:00-11:00),Two-Wheeler Skid,0,LOW,HIGH,1
+CHN-ACC-1088,2025-01-28 00:00:00,13.00744,80.201413,Guindy Race Course / Five Furlong Road Junction,Grievous,Cloudy,Potholed/Debris,Afternoon (12:00-16:00),Car + Heavy Truck,2,MEDIUM,HIGH,1
+CHN-ACC-1055,2025-06-24 14:00:00,13.006375,80.192922,Kathipara Urban Cloverleaf Junction,Non-Injury Collision,Rainy,Potholed/Debris,Peak Morning (08:00-11:00),Car + Heavy Truck,0,HIGH,HIGH,1
+CHN-ACC-1089,2025-03-19 18:00:00,13.006404,80.20363,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Mist/Fog,Normal Dry,Night (22:00-04:00),Ambulance + Auto,1,LOW,HIGH,1
+CHN-ACC-1191,2025-09-27 11:00:00,13.032686,80.210388,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Grievous,Rainy,Waterlogged,Night (22:00-04:00),Container Lorry,0,LOW,MEDIUM,0
+CHN-ACC-1045,2025-08-30 03:00:00,13.008127,80.193367,Kathipara Urban Cloverleaf Junction,Grievous,Flooded Surface,Potholed/Debris,Night (22:00-04:00),Two-Wheeler + Bus,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1113,2025-08-31 06:00:00,12.980658,80.218116,Velachery Main Road & Bypass Junction,Non-Injury Collision,Mist/Fog,Waterlogged,Night (22:00-04:00),Ambulance + Auto,1,MEDIUM,HIGH,1
+CHN-ACC-1067,2025-03-30 11:00:00,13.019057,80.200164,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Rainy,Potholed/Debris,Peak Morning (08:00-11:00),Car + Heavy Truck,2,LOW,MEDIUM,0
+CHN-ACC-1042,2025-04-12 00:00:00,13.008196,80.192195,Kathipara Urban Cloverleaf Junction,Minor Injury,Clear,Submerged Edge,Night (22:00-04:00),Two-Wheeler Skid,1,HIGH,HIGH,1
+CHN-ACC-1111,2026-10-02 03:00:00,12.98201,80.2181,Velachery Main Road & Bypass Junction,Non-Injury Collision,Clear,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,0,MEDIUM,HIGH,1
+CHN-ACC-1036,2026-09-29 19:00:00,13.005972,80.193995,Kathipara Urban Cloverleaf Junction,Grievous,Flooded Surface,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1169,2025-06-22 13:00:00,13.018728,80.186826,Mount-Poonamallee Road - Ramapuram / MIOT,Minor Injury,Rainy,Submerged Edge,Night (22:00-04:00),Two-Wheeler + Bus,1,LOW,HIGH,1
+CHN-ACC-1131,2025-06-25 06:00:00,13.005641,80.256197,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Rainy,Waterlogged,Peak Morning (08:00-11:00),Ambulance + Auto,2,LOW,MEDIUM,0
+CHN-ACC-1094,2026-09-26 02:00:00,13.006281,80.202544,Guindy Race Course / Five Furlong Road Junction,Fatal,Rainy,Potholed/Debris,Night (22:00-04:00),Car + Heavy Truck,0,LOW,HIGH,1
+CHN-ACC-1021,2026-02-08 06:00:00,13.017701,80.221383,Anna Salai - Saidapet Maraimalai Adigal Bridge,Grievous,Heavy Rain,Submerged Edge,Peak Morning (08:00-11:00),Container Lorry,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1009,2026-10-12 05:00:00,13.018262,80.221515,Anna Salai - Saidapet Maraimalai Adigal Bridge,Grievous,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Container Lorry,1,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1154,2025-06-22 10:00:00,13.01688,80.185812,Mount-Poonamallee Road - Ramapuram / MIOT,Fatal,Heavy Rain,Potholed/Debris,Peak Evening (17:00-21:00),Two-Wheeler + Bus,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1075,2025-03-25 14:00:00,13.020225,80.199893,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Flooded Surface,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1081,2026-09-14 03:00:00,13.01947,80.198161,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Non-Injury Collision,Mist/Fog,Submerged Edge,Night (22:00-04:00),Two-Wheeler + Bus,2,LOW,MEDIUM,0
+CHN-ACC-1051,2026-08-26 23:00:00,13.006536,80.194024,Kathipara Urban Cloverleaf Junction,Minor Injury,Clear,Normal Dry,Peak Evening (17:00-21:00),Container Lorry,1,HIGH,HIGH,1
+CHN-ACC-1063,2026-01-09 14:00:00,13.019537,80.198736,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Rainy,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler Skid,2,MEDIUM,MEDIUM,0
+CHN-ACC-1127,2025-12-07 13:00:00,12.981294,80.218133,Velachery Main Road & Bypass Junction,Non-Injury Collision,Rainy,Submerged Edge,Night (22:00-04:00),Two-Wheeler Skid,2,MEDIUM,HIGH,1
+CHN-ACC-1147,2025-03-12 02:00:00,13.03398,80.277198,Santhome High Road - Foreshore Estate Link,Minor Injury,Heavy Rain,Waterlogged,Night (22:00-04:00),Car + Heavy Truck,1,HIGH_CONGESTION,LOW,0
+CHN-ACC-1077,2026-01-04 08:00:00,13.020696,80.199817,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Fatal,Heavy Rain,Submerged Edge,Peak Morning (08:00-11:00),Two-Wheeler Skid,4,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1066,2026-03-21 23:00:00,13.018849,80.198794,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Rainy,Normal Dry,Night (22:00-04:00),Ambulance + Auto,1,HIGH,MEDIUM,0
+CHN-ACC-1178,2025-10-30 07:00:00,13.083805,80.274525,Poonamallee High Road - Ripon HQ Approach,Non-Injury Collision,Heavy Rain,Potholed/Debris,Peak Evening (17:00-21:00),Car + Heavy Truck,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1083,2026-09-22 20:00:00,13.005535,80.202343,Guindy Race Course / Five Furlong Road Junction,Minor Injury,Cloudy,Potholed/Debris,Night (22:00-04:00),Two-Wheeler + Bus,0,MEDIUM,HIGH,1
+CHN-ACC-1139,2026-09-04 13:00:00,13.005424,80.256129,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Mist/Fog,Submerged Edge,Night (22:00-04:00),Two-Wheeler + Bus,2,LOW,MEDIUM,0
+CHN-ACC-1060,2026-08-05 18:00:00,13.006106,80.192987,Kathipara Urban Cloverleaf Junction,Minor Injury,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler + Bus,4,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1144,2026-01-22 16:00:00,13.004804,80.25693,OMR Rajiv Gandhi Salai - Madhya Kailash,Minor Injury,Rainy,Normal Dry,Peak Morning (08:00-11:00),Two-Wheeler Skid,2,HIGH,MEDIUM,0
+CHN-ACC-1074,2026-05-15 12:00:00,13.021072,80.199824,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Grievous,Heavy Rain,Waterlogged,Night (22:00-04:00),Ambulance + Auto,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1165,2025-10-30 12:00:00,13.017056,80.186178,Mount-Poonamallee Road - Ramapuram / MIOT,Non-Injury Collision,Rainy,Wet Asphalt,Afternoon (12:00-16:00),Car + Heavy Truck,2,HIGH,HIGH,1
+CHN-ACC-1057,2025-08-02 09:00:00,13.007137,80.194101,Kathipara Urban Cloverleaf Junction,Minor Injury,Rainy,Wet Asphalt,Afternoon (12:00-16:00),Container Lorry,2,MEDIUM,HIGH,1
+CHN-ACC-1130,2025-04-28 00:00:00,13.005142,80.25615,OMR Rajiv Gandhi Salai - Madhya Kailash,Non-Injury Collision,Heavy Rain,Waterlogged,Peak Morning (08:00-11:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1190,2026-08-17 08:00:00,13.031921,80.210106,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Fatal,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler Skid,2,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1007,2026-07-16 22:00:00,13.017842,80.222481,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Rainy,Normal Dry,Afternoon (12:00-16:00),Container Lorry,0,LOW,HIGH,1
+CHN-ACC-1186,2025-07-13 20:00:00,13.033335,80.210077,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Non-Injury Collision,Cloudy,Waterlogged,Night (22:00-04:00),Ambulance + Auto,2,MEDIUM,MEDIUM,0
+CHN-ACC-1003,2026-06-25 13:00:00,13.017604,80.22119,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Rainy,Normal Dry,Peak Morning (08:00-11:00),Car + Heavy Truck,2,MEDIUM,HIGH,1
+CHN-ACC-1040,2026-04-01 07:00:00,13.006941,80.19281,Kathipara Urban Cloverleaf Junction,Minor Injury,Cloudy,Submerged Edge,Peak Evening (17:00-21:00),Container Lorry,1,LOW,HIGH,1
+CHN-ACC-1043,2026-09-26 18:00:00,13.008143,80.192304,Kathipara Urban Cloverleaf Junction,Grievous,Flooded Surface,Submerged Edge,Peak Morning (08:00-11:00),Ambulance + Auto,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1071,2025-04-10 21:00:00,13.020026,80.197907,Inner Ring Road (100 Feet Rd) - Jafferkhanpet,Minor Injury,Rainy,Normal Dry,Peak Morning (08:00-11:00),Container Lorry,0,HIGH,MEDIUM,0
+CHN-ACC-1054,2025-10-22 22:00:00,13.00591,80.193946,Kathipara Urban Cloverleaf Junction,Grievous,Rainy,Wet Asphalt,Peak Morning (08:00-11:00),Two-Wheeler + Bus,1,HIGH,HIGH,1
+CHN-ACC-1086,2026-05-02 10:00:00,13.007615,80.202061,Guindy Race Course / Five Furlong Road Junction,Fatal,Heavy Rain,Waterlogged,Peak Evening (17:00-21:00),Two-Wheeler + Bus,2,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1044,2025-05-09 00:00:00,13.006968,80.192277,Kathipara Urban Cloverleaf Junction,Grievous,Cloudy,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,0,LOW,HIGH,1
+CHN-ACC-1019,2025-07-21 06:00:00,13.019042,80.22103,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Rainy,Wet Asphalt,Peak Evening (17:00-21:00),Car + Heavy Truck,0,LOW,HIGH,1
+CHN-ACC-1137,2026-10-06 23:00:00,13.006246,80.257158,OMR Rajiv Gandhi Salai - Madhya Kailash,Grievous,Heavy Rain,Waterlogged,Afternoon (12:00-16:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,0
+CHN-ACC-1174,2026-09-17 21:00:00,13.08351,80.274439,Poonamallee High Road - Ripon HQ Approach,Grievous,Clear,Submerged Edge,Night (22:00-04:00),Ambulance + Auto,0,LOW,LOW,0
+CHN-ACC-1004,2026-03-01 11:00:00,13.018717,80.220983,Anna Salai - Saidapet Maraimalai Adigal Bridge,Non-Injury Collision,Rainy,Wet Asphalt,Night (22:00-04:00),Two-Wheeler + Bus,0,MEDIUM,HIGH,1
+CHN-ACC-1150,2025-12-25 05:00:00,13.033048,80.277167,Santhome High Road - Foreshore Estate Link,Grievous,Heavy Rain,Potholed/Debris,Peak Morning (08:00-11:00),Ambulance + Auto,4,HIGH_CONGESTION,LOW,0
+CHN-ACC-1195,2026-08-16 21:00:00,13.033931,80.208868,Jawaharlal Nehru Road - Kasi Theatre Grade Separator,Minor Injury,Mist/Fog,Wet Asphalt,Peak Evening (17:00-21:00),Ambulance + Auto,0,LOW,MEDIUM,0
+CHN-ACC-1182,2025-07-13 21:00:00,13.082281,80.274373,Poonamallee High Road - Ripon HQ Approach,Grievous,Flooded Surface,Waterlogged,Peak Morning (08:00-11:00),Ambulance + Auto,1,HIGH_CONGESTION,LOW,0
+CHN-ACC-1033,2025-01-13 10:00:00,13.007762,80.192533,Kathipara Urban Cloverleaf Junction,Fatal,Heavy Rain,Submerged Edge,Peak Evening (17:00-21:00),Two-Wheeler + Bus,3,HIGH_CONGESTION,HIGH,1
+CHN-ACC-1082,2026-06-03 08:00:00,13.007399,80.203231,Guindy Race Course / Five Furlong Road Junction,Non-Injury Collision,Clear,Submerged Edge,Afternoon (12:00-16:00),Two-Wheeler + Bus,0,HIGH,HIGH,1
